@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>yujin_yrl_v2_package</name>
+  <version>2.2.1</version>
+
+  <description>ROS package for yrl V2 series</description>
+  <author email="hjkim2@yujinrobot.com">Hyeon Jeong Kim</author>
+  <maintainer email="hjkim2@yujinrobot.com">Hyeon Jeong Kim</maintainer>
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+  
+  <build_depend>roscpp</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>tf</build_depend>
+  
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
+
+	<export></export>
+</package>
+
+<!--  <exec_depend>roscpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tf</exec_depend>
+-->

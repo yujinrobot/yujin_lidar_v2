@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="yujin_yrl_v2_package" type="yrl_pub" name="yrl_pub" output="screen" >
+    <rosparam command="load" file="$(find yujin_yrl_v2_package)/config/params.yaml"/>
+  </node>
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find yujin_yrl_v2_package)/config/yujin_yrl_v2_rviz.rviz"/>
+</launch>
