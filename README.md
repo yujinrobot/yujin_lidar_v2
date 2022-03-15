@@ -29,10 +29,14 @@ YRL series LiDAR is designed to detect objects, measure distances from surroundi
 ## ROS Package Installation
 
 ```bash
+/// 1st terminal
+git clone https://github.com/yujinrobot/yujin_lidar_v2.git
+
+/// 2nd terminal
 source /opt/ros/noetic/setup.bash
 mkdir -p ~/catkin_ws/src/
 cd ~/catkin_ws/src/
-git clone https://
+*** copy files from yujin_lidar_v2/driver_ros1_noetic_ubuntu2004/src to this directory
 cd ..
 catkin_make
 source ~/catkin_ws/devel/setup.bash
