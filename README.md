@@ -8,16 +8,16 @@ https://yujinrobot.com/autonomous-mobility-solutions/components/lidar/
 YRL series LiDAR is designed to detect objects, measure distances from surroundings and collect data as point clouds. Yujin LiDAR is an optimized solution for indoor mapping, navigation, localization and other applications in a variety of industries including robotics, safety and security.
 
 ## YRL3V2 Scanning
-![](4F.gif)
-![](cafe.gif)
 ![](cafe2.jpeg)
+![](cafe.gif)
+![](4F.gif)
 
 ## ROS1 Package
 
 - ROS Version: Noetic
 - Maintainer Status: Developed
 - License: BSD
-![](ros1driverRviz.jpeg)
+![](ros1driverRviz.gif)
 
 ## Supported Hardware
 - YRL3V2-05 (3D, 5m)
