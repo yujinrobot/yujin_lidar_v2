@@ -1,6 +1,7 @@
 # Yujin LiDAR V2
 Official Website: 
 http://lidar.yujinrobot.com/
+
 https://yujinrobot.com/autonomous-mobility-solutions/components/lidar/
 
 ## About Yujin LiDAR
@@ -17,6 +18,7 @@ YRL series LiDAR is designed to detect objects, measure distances from surroundi
 - ROS Version: Noetic
 - Maintainer Status: Developed
 - License: BSD
+
 ![](ros1driverRviz.gif)
 
 ## Supported Hardware
@@ -38,7 +40,7 @@ rospack profile
 ```
 
 ## ROS API
-- Package Name: yujin_yrl_package
+- Package Name: yujin_yrl_v2_package
 - Node Name: yrl_pub
 - Publisher Name : yrl_pub
 - Topic Name : yrl_cloud
