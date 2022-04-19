@@ -16,10 +16,10 @@
 #define YUJIN_ROBOT_YRL_DRIVER_HPP
 
 #ifdef _WIN32
-#ifdef DLL0329_EXPORTS
-#define DLL0329_API __declspec(dllexport)
+#ifdef YRL3V2DRIVERDLL_EXPORTS
+#define YRL3V2DRIVERDLL_API __declspec(dllexport)
 #else
-#define DLL0329_API __declspec(dllimport)
+#define YRL3V2DRIVERDLL_API __declspec(dllimport)
 #endif
 #endif
 
@@ -31,7 +31,7 @@
 #endif
 
 #ifdef _WIN32
-class DLL0329_API YujinRobotYrlDriver
+class YRL3V2DRIVERDLL_API YujinRobotYrlDriver
 #else
 class YujinRobotYrlDriver
 #endif
