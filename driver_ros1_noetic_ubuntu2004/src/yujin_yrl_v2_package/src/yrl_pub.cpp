@@ -1,5 +1,7 @@
 /*********************************************************************
 *  Copyright (c) 2022, YujinRobot Corp.
+*  
+*  Hyeon Jeong Kim, hjkim2@yujinrobot.com
 *
 *  Software License Agreement (BSD License)
 *
@@ -31,8 +33,6 @@
 *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 *  POSSIBILITY OF SUCH DAMAGE.
 *********************************************************************/
-/// 2.1.0 22-03-15
-//#include "yujinrobot_yrldriver.hpp"
 #include "../../lib_yujinrobot_yrldriver/include/yujinrobot_yrldriver/yujinrobot_yrldriver.hpp"
 #include <iostream>
 #include <dlfcn.h>
@@ -111,8 +111,8 @@ int main(int argc, char **argv)
   {
       std::string IpAddress = instance->GetIPAddrParam();
       int PortNumber = instance->GetPortNumParam ();
-      LOGPRINT(main, LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
-      LOGPRINT(main, LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
+      LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
+      LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
       delete instance;
       return -1;
   }
