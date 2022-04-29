@@ -68,49 +68,40 @@ enum RawDataGraphType
 };
 
 typedef struct LidarParam
-{//116byte
-    uint32_t bias_volt; /// fw only
-    uint32_t gain_volt; /// fw only
-    uint32_t ld_volt; /// fw only
-    uint32_t ld_pulse; /// fw only
-
-    uint32_t adjust_mode; /// jyk code 내부용
-
-    uint32_t safety_rotation_ms; /// fw only
-
-    uint32_t vertical_lower; /// jyk user interface for scanning mode
-    uint32_t vertical_upper; /// jyk user interface for scanning mode
-    uint32_t vertical_speed; /// jyk user interface for scanning mode
-    int32_t vertical_offset_lower; /// jyk user interface for scanning mode
-    //int32_t vertical_offset_upper; /// jyk user interface for scanning mode
+{
+    uint32_t bias_volt;
+    uint32_t gain_volt;
+    uint32_t ld_volt;
+    uint32_t ld_pulse;
+    uint32_t adjust_mode; 
+    uint32_t safety_rotation_ms;
+    uint32_t vertical_lower; 
+    uint32_t vertical_upper;
+    uint32_t vertical_speed;
+    int32_t vertical_offset_lower;
     int32_t vertical_mode;
+    uint32_t table_size; 
+    int32_t* width_table1; 
+    int32_t* width_table2; 
+    int32_t* comp_table1;
+    int32_t* comp_table2;
 
-    uint32_t table_size;  /// fw only
-    int32_t* width_table1; /// fw only
-    int32_t* width_table2; /// fw only
-    int32_t* comp_table1; /// fw only
-    int32_t* comp_table2; /// fw only
-
-    uint32_t serial_number1; /// jyk user interface for information
-    uint32_t serial_number2;/// jyk user interface for information
-    uint32_t serial_number3;/// jyk user interface for information
-    uint32_t ip_address; /// jyk user interface for ip change
-    uint32_t model_no;/// jyk user interface for information
-    uint32_t horizontal_speed;/// jyk user interface for scanning mode
-    int32_t horizontal_offset;//  //
-    int32_t vertical_offset;// //
-    
+    uint32_t serial_number1;
+    uint32_t serial_number2;
+    uint32_t serial_number3;
+    uint32_t ip_address;
+    uint32_t model_no;
+    uint32_t horizontal_speed;
+    int32_t horizontal_offset;
+    int32_t vertical_offset;
     uint32_t MAC1;
     uint32_t MAC2;
-    
-    uint32_t eth_major; /// fw only
-    uint32_t eth_minor; /// fw only
-    uint32_t eth_revision; /// fw only
-
-    uint32_t tdc_major;/// jyk user interface for information
+    uint32_t eth_major;
+    uint32_t eth_minor;
+    uint32_t eth_revision;
+    uint32_t tdc_major;
     uint32_t tdc_minor;
-    uint32_t tdc_revision;/// jyk user interface for information
-
+    uint32_t tdc_revision;
     uint32_t factory_mode;
     uint32_t main_model_no;
 } LidarParam;
@@ -166,9 +157,6 @@ public:
     {}
     
     ~LidarStatusData(){}
-    
-    // ??
-    // virtual ~LidarStatusData(){}
 };
 
 template<typename Tr, int _degree180 = 180>

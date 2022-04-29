@@ -31,9 +31,6 @@ NetworkInterface::NetworkInterface()
 , mTableSize(0)
 , TCPConnected(false)
 {
-    //mUDPSocket = std::make_shared<YRLUDPSocket>("udp_listener");
-    //mTCPSocket = std::make_shared<YRLTCPSocket>("tcp_client");
-
     mUDPRecvBuffer.assign(4096 * 4, 0);
     mUDPSendBuffer.assign(24, 0);
     mTCPSendBuffer.assign(24, 0);
@@ -44,8 +41,6 @@ NetworkInterface::NetworkInterface()
 NetworkInterface::~NetworkInterface()
 {
     LOGPRINT(NetworkInterface, YRL_LOG_TRACE, ("distructor called\n"));
-    //mUDPSocket = nullptr;
-    //mTCPSocket = nullptr;
 }
 
 int NetworkInterface::ConnectTCP()
@@ -1036,7 +1031,7 @@ void NetworkInterface::printSendTCPMessage ()
     ptr++;
     memcpy(&data, ptr, sizeof(uint32_t));
     //printf("[  %d  ]", data);//data
-    log += "[" + std::to_string(*ptr) + "]";
+    log += "[" + std::to_string(data) + "]";
     ptr += 4;
     //printf("[%x]", *ptr);//LRC
     log += "[" + std::to_string(*ptr) + "]";

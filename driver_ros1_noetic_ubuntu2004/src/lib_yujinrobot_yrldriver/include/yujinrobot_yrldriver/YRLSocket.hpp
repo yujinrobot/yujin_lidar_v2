@@ -17,6 +17,7 @@
 
 #ifdef _WIN32
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <winsock2.h>
 #pragma comment(lib, "Ws2_32.lib")
 #pragma warning(disable: 4819)

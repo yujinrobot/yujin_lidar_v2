@@ -76,7 +76,7 @@ public:
             unsigned long arg = 0;
             if(ioctlsocket(socket_descriptor, FIONBIO, &arg) == -1 )
             {
-                std::cout << "[" << socket_name << "] blocking mode setting failed" << std::endl;
+                LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] blocking mode setting failed. Close socket.\n", socket_name.c_str()));
                 SocketClose();
             }
         }
@@ -107,8 +107,8 @@ public:
             if(ioctlsocket(socket_descriptor, FIONBIO, &arg) == -1 )
             {
                 int error = WSAGetLastError();
-                std::cout << "socket error: " << error <<"\n";
-                std::cout << "[" << socket_name << "] non-blocking mode setting failed" << std::endl;
+                LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] socket error: %d\n", socket_name.c_str(), error));
+                LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] non-blocking mode setting failed. Close socket.\n", socket_name.c_str()));
                 SocketClose();
             }
         }
@@ -144,8 +144,7 @@ public:
         sockaddr_in destAddr;
         if (!buildAddrStructure(serverAddress, serverPort, destAddr))
         {
-            std::cout << "[" << socket_name << "] serverPort = " << serverPort;
-            std::cout << " serverAddress = " << serverAddress << " connect(); building structure failed " << std::endl;
+            LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] serverAddress: %s serverPort: %d, building structure failed. Close socket.\n", socket_name.c_str(), serverAddress.c_str(), serverPort));
             SocketClose();
             return false;
         }
@@ -175,9 +174,7 @@ public:
                     getsockopt(socket_descriptor, SOL_SOCKET, SO_ERROR, (char*)(&valopt), &lon);
                     if (valopt)
                     {
-                        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]\n", __FILE__, __FUNCTION__, __LINE__);
-                        std::cout << "[" << socket_name << "] serverPort = " << serverPort << ", ";
-                        std::cout << "serverAddress = " << serverAddress << ", connect(); connection failed - in progress" << std::endl;
+                        LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] serverAddress: %s serverPort: %d, connection failed - in progress. Close socket.\n", socket_name.c_str(), serverAddress.c_str(), serverPort));
                         SocketClose();
                         return false;
                     }
@@ -186,15 +183,13 @@ public:
                 {
                     if (ret == 0)
                     {
-                        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]\n", __FILE__, __FUNCTION__, __LINE__);
-                        std::cout << "[" << socket_name << "] serverPort = " << serverPort << ", ";
-                        std::cout << " serverAddress = " << serverAddress << ", connect(); connection failed - time out" << std::endl;
+                        LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] serverAddress: %s serverPort: %d, connection failed - time out. Close socket.\n", socket_name.c_str(), serverAddress.c_str(), serverPort));
                         SocketClose();
                         return false;
                     }
                     else
                     {
-                        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: select() failed.\n", __FILE__, __FUNCTION__, __LINE__);
+                        LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] serverAddress: %s serverPort: %d, select() failed.\n", socket_name.c_str(), serverAddress.c_str(), serverPort));
                         SocketClose();
                         return false;
                     }
@@ -202,8 +197,7 @@ public:
             }
             else
             {
-                std::cout << "[" << socket_name << "] serverPort = " << serverPort;
-                std::cout << " serverAddress = " << serverAddress << " connect(); connection failed during connection. errno = " << errno << std::endl;
+                LOGPRINT(YRLTCPSocket, YRL_LOG_ERROR, ("[%s] serverAddress: %s serverPort: %d, connection failed during connection. errno:%d. Close socket.\n", socket_name.c_str(), serverAddress.c_str(), serverPort, errno));
                 SocketClose();
                 return false;
             }

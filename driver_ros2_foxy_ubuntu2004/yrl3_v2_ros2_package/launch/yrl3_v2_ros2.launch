@@ -1,0 +1,6 @@
+<launch>
+  <node pkg="yrl3_v2_ros2_package" exec="yrl3_v2_ros2_node" name="yrl3_v2_ros2_node" output="screen">
+    <param from="$(find-pkg-share yrl3_v2_ros2_package)/config/lidar_params.yaml"/>
+  </node>
+  <node pkg="rviz2" exec="rviz2" name="rviz2" args="-d $(find-pkg-share yrl3_v2_ros2_package)/config/yrl3_v2_rviz2.rviz"/>
+</launch>
