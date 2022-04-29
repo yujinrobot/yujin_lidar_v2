@@ -1,6 +1,7 @@
 Installing YRL3V2 ROS2 Driver 
 =============
 
+
 ## Install ROS2 Foxy Fitzroy
 ### Add the ROS 2 apt repository
 ```
@@ -59,7 +60,7 @@ $ cd ~/colcon_ws
 $ colcon build
 ```
 
-## How to use ROS2 and YRL3V2 ROS2 Package
+## How to Use ROS2 and YRL3V2 ROS2 Package
 ### Package execution (roslaunch) : recommended
 ```
 Launch files are located in '~/colcon_ws/src/yrl3_v2_ros2_package/launch'
