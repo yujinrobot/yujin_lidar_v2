@@ -1,4 +1,4 @@
-Installing YRLROS2 driver 
+Installing YRL3V2 ROS2 Driver 
 =============
 
 ## Install ROS2 Foxy Fitzroy
@@ -31,7 +31,7 @@ Open a new terminal and run 'talker'
 $ ros2 run demo_nodes_cpp talker
 
 Open another terminal and run 'listener'
-ros2 run demo_nodes_py listener
+$ ros2 run demo_nodes_py listener
 ```
 
 ## Build YRL3V2 ROS2 Package
