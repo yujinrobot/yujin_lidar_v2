@@ -52,7 +52,7 @@ $ git clone https://github.com/yujinrobot/yujin_lidar_v2.git
 
 Copy 'yrl3_v2_ros2_package' of 'yujin_lidar_v2/driver_ros2_foxy_ubuntu2004' into ~/colcon_ws/src
 ```
-### Build the YRL3V2 ROS2 Package
+### Build the YRL3V2 ROS2 package
 ``` 
 Open a new terminal and build the package
 
