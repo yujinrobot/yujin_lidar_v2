@@ -85,7 +85,7 @@ $ ros2 run yrl3_v2_ros2_package yrl3_v2_ros2_node
 # For visualizing point data from yrl3_v2_ros2_node
 $ rviz2 -d ~/colcon_ws/src/yrl3_v2_ros2_package/config/yrl3_v2_rviz2.rviz
 ```
-### Parameter list of a node
+### Parameter list of a running node
 ```
 $ ros2 param list /< node_name >
 
@@ -121,4 +121,11 @@ $ ros2 run < package_name > < node_name > --ros-args --params-file < path_to_yam
 
 # Example
 $ ros2 run yrl3_v2_ros2_package yrl3_v2_ros2_node --ros-args --params-file ~/colcon_ws/src/yrl3_v2_ros2_package/config/lidar_params.yaml
+```
+### Setting parameters on node startup
+```
+$ ros2 run < package_name > < node_name > --ros-args -p < parameter_name >:=< parameter_value >
+
+# Example
+$ ros2 run yrl3_v2_ros2_package yrl3_v2_ros2_node --ros-args -p lidar_ip:="192.168.1.250" -p scan_mode:=1 -p extrinsic_transform:="[0.0, 0.0, 1.0, 0.0, 0.0, 0.0]"
 ```
