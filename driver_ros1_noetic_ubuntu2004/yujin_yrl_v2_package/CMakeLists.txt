@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.0.2)
 project(yujin_yrl_v2_package)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(LIB_DIR ${CMAKE_SOURCE_DIR}/lib_yujinrobot_yrldriver/lib)
-set(INCLUDE_DIR ${CMAKE_SOURCE_DIR}/lib_yujinrobot_yrldriver/include/yujinrobot_yrldriver)
-set(EIGEN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/eigen-3.3.7)
-set(SOPHUS_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/sophus/include)
+set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib_yujinrobot_yrldriver/lib)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/lib_yujinrobot_yrldriver/include/yujinrobot_yrldriver)
+set(EIGEN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/eigen-3.3.7)
+set(SOPHUS_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/sophus/include)
 
 find_package(catkin REQUIRED COMPONENTS
   message_generation
