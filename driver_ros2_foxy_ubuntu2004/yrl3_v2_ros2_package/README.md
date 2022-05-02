@@ -61,7 +61,7 @@ $ colcon build
 ```
 
 ## How to Use ROS2 and YRL3V2 ROS2 Package
-### Package execution (roslaunch) : recommended
+### Package execution (ros2 launch) : recommended
 ```
 Launch files are located in '~/colcon_ws/src/yrl3_v2_ros2_package/launch'
 1) yrl3_v2_ros2.launch.py (Python) 2) yrl3_v2_ros2.launch (XML)
@@ -75,21 +75,31 @@ $ ros2 launch yrl3_v2_ros2_package yrl3_v2_ros2.launch.py
 OR
 $ ros2 launch yrl3_v2_ros2_package yrl3_v2_ros2.launch
 ```
-### Node parameter list
+### Package execution (ros2 run)
+```
+$ ros2 run < package_name > < node_name >
+
+# Example
+$ ros2 run yrl3_v2_ros2_package yrl3_v2_ros2_node
+
+# For visualizing point data from yrl3_v2_ros2_node
+$ rviz2 -d ~/colcon_ws/src/yrl3_v2_ros2_package/config/yrl3_v2_rviz2.rviz
+```
+### Parameter list of a node
 ```
 $ ros2 param list /< node_name >
 
 # Example
 $ ros2 param list /yrl3_v2_ros2_node
 ```
-### Get node parameter
+### Getting value of a parameter at runtime
 ```
 $ ros2 param get /< node_name > < parameter_name >
 
 # Example
 $ ros2 param get /yrl3_v2_ros2_node lidar_ip
 ```
-### Set node parameter
+### Setting value of a parameter at runtime
 ```
 $ ros2 param set /< node_name > < parameter_name > < parameter_value >
 
@@ -97,4 +107,18 @@ $ ros2 param set /< node_name > < parameter_name > < parameter_value >
 $ ros2 param set /yrl3_v2_ros2_node lidar_ip 192.168.1.250
 $ ros2 param set /yrl3_v2_ros2_node scan_mode 1
 $ ros2 param set /yrl3_v2_ros2_node extrinsic_transform "[0.0, 0.0, 0.07, 0.0, 0.0, 0.0]"
+```
+### Load parameters from a file to a running node
+```
+$ ros2 param load /< node_name > < path_to_yaml_file >
+
+# Example
+$ ros2 param load /yrl3_v2_ros2_node ~/colcon_ws/src/yrl3_v2_ros2_package/config/lidar_params.yaml
+```
+### Load parameter file on node startup
+```
+$ ros2 run < package_name > < node_name > --ros-args --params-file < path_to_yaml_file >
+
+# Example
+$ ros2 run yrl3_v2_ros2_package yrl3_v2_ros2_node --ros-args --params-file ~/colcon_ws/src/yrl3_v2_ros2_package/config/lidar_params.yaml
 ```
