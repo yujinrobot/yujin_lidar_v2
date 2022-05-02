@@ -50,7 +50,7 @@ $ echo ". ~/colcon_ws/install/local_setup.bash" >> ~/.bashrc
 ```
 $ git clone https://github.com/yujinrobot/yujin_lidar_v2.git
 
-Copy 'yrl3_v2_ros2_package' of 'yujin_lidar_v2/driver_ros2_foxy_ubuntu2004' into ~/colcon_ws/src
+Copy 'yrl3_v2_ros2_package' in 'yujin_lidar_v2/driver_ros2_foxy_ubuntu2004' to ~/colcon_ws/src
 ```
 ### Build the YRL3V2 ROS2 package
 ``` 
@@ -92,14 +92,14 @@ $ ros2 param list /< node_name >
 # Example
 $ ros2 param list /yrl3_v2_ros2_node
 ```
-### Getting value of a parameter at runtime
+### Getting a parameter value in runtime
 ```
 $ ros2 param get /< node_name > < parameter_name >
 
 # Example
 $ ros2 param get /yrl3_v2_ros2_node lidar_ip
 ```
-### Setting value of a parameter at runtime
+### Setting a parameter value in runtime
 ```
 $ ros2 param set /< node_name > < parameter_name > < parameter_value >
 
@@ -108,21 +108,21 @@ $ ros2 param set /yrl3_v2_ros2_node lidar_ip 192.168.1.250
 $ ros2 param set /yrl3_v2_ros2_node scan_mode 1
 $ ros2 param set /yrl3_v2_ros2_node extrinsic_transform "[0.0, 0.0, 0.07, 0.0, 0.0, 0.0]"
 ```
-### Load parameters from a file to a running node
+### Loading parameters from a file to a running node
 ```
 $ ros2 param load /< node_name > < path_to_yaml_file >
 
 # Example
 $ ros2 param load /yrl3_v2_ros2_node ~/colcon_ws/src/yrl3_v2_ros2_package/config/lidar_params.yaml
 ```
-### Load parameter file on node startup
+### Loading a parameter file when starting a node
 ```
 $ ros2 run < package_name > < node_name > --ros-args --params-file < path_to_yaml_file >
 
 # Example
 $ ros2 run yrl3_v2_ros2_package yrl3_v2_ros2_node --ros-args --params-file ~/colcon_ws/src/yrl3_v2_ros2_package/config/lidar_params.yaml
 ```
-### Setting parameters on node startup
+### Setting parameters when starting a node
 ```
 $ ros2 run < package_name > < node_name > --ros-args -p < parameter_name >:=< parameter_value >
 
