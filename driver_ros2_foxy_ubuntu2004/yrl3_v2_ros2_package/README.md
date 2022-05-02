@@ -75,3 +75,26 @@ $ ros2 launch yrl3_v2_ros2_package yrl3_v2_ros2.launch.py
 OR
 $ ros2 launch yrl3_v2_ros2_package yrl3_v2_ros2.launch
 ```
+### Node parameter list
+```
+$ ros2 param list /< node_name >
+
+# Example
+$ ros2 param list /yrl3_v2_ros2_node
+```
+### Get node parameter
+```
+$ ros2 param get /< node_name > < parameter_name >
+
+# Example
+$ ros2 param get /yrl3_v2_ros2_node lidar_ip
+```
+### Set node parameter
+```
+$ ros2 param set /< node_name > < parameter_name > < parameter_value >
+
+# Example
+$ ros2 param set /yrl3_v2_ros2_node lidar_ip 192.168.1.250
+$ ros2 param set /yrl3_v2_ros2_node scan_mode 1
+$ ros2 param set /yrl3_v2_ros2_node extrinsic_transform "[0.0, 0.0, 0.07, 0.0, 0.0, 0.0]"
+```
