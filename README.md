@@ -76,8 +76,7 @@ sudo apt-get install qt5-default
 sudo -H ./Yujin_Lidar_Viewer.sh
 ```
 
-
-
+  
 Installing YRL3V2 ROS2 Driver 
 =============
 
