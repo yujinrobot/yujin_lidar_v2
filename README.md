@@ -308,9 +308,9 @@ $ catkin_make
 ```
 
 ## Map your environment
-Default scanning mode we support is mode 2, so please change LiDAR's scanning mode to 2 through viewer before trying mapping.
+**Default scanning mode we support is mode 2, so please change LiDAR's scanning mode to 2 through viewer before trying mapping.
 When obtaining point cloud data for mapping, data collection should be carried out by moving 0.5 meters and stopping for 2~3 seconds, and so on.
-Also, remove objects near the LiDAR to avoid poor quality of mapping.
+Also, remove objects near the LiDAR to avoid poor quality of mapping.**
 
 If you want to use LiDAR scanning mode 1, 3 and 4, 
 you should modify the value of 'max_clouds' parameter in ~/catkin_ws/src/yrl_to_cloud/launch/assemble.launch
