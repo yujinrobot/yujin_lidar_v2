@@ -19,7 +19,7 @@ $ echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 $ cd ~/Downloads
 $ git clone https://github.com/yujinrobot/yujin_lidar_v2.git
 
-Copy 'yujin_yrl_v2_package' in '~/Downloads/yujin_lidar_v2/driver_ros1_noetic_ubuntu2004' to ~/catkin_ws/src
+Copy 'yujin_yrl_v2_package' in '~/Downloads/yujin_lidar_v2/driver_ros1_noetic_ubuntu2004' to '~/catkin_ws/src'
 ```
 ### Build the YRL3V2 ROS package
 ``` 
