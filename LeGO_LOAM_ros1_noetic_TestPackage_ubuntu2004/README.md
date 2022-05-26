@@ -45,7 +45,7 @@ $ cmake ..
 $ sudo make install 
 
 Install libparmetis
-sudo apt-get install libparmetis-dev 
+$ sudo apt-get install libparmetis-dev 
 ```
 ### Download 'LeGO-LOAM'
 ```
