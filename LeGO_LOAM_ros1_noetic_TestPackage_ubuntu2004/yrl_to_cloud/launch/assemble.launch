@@ -1,0 +1,16 @@
+<launch>
+  <node pkg="yujin_yrl_v2_package" type="yrl_pub" name="yrl_pub" output="screen" >
+    <rosparam command="load" file="$(find yujin_yrl_v2_package)/config/params.yaml"/>
+  </node>
+  
+  <node type="point_cloud2_assembler" pkg="laser_assembler" name="my_assembler">
+    <remap from="cloud" to="yrl_pub/yrl_cloud"/>
+    <param name="max_clouds" type="int" value="50" />
+    <param name="fixed_frame" type="string" value="base_link" />
+  </node>
+  
+  <node type="yrl2pc.py" pkg="yrl_to_cloud" name="yrl2pc" output="screen"/>
+  
+  <node pkg="rviz" type="rviz" name="rviz" args="-d $(find yrl_to_cloud)/config/yrl_to_cloud_rviz.rviz"/>
+  
+</launch>
