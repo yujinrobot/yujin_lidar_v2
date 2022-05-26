@@ -1,5 +1,4 @@
-#YRL3V2 LeGO-LOAM
-
+# YRL3V2 LeGO-LOAM
 LeGO-LOAM: https://github.com/RobustFieldAutonomyLab/LeGO-LOAM
 
 Tested with ROS Noetic and YUJIN LiDAR YRL3V2
