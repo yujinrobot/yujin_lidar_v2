@@ -141,5 +141,5 @@ $ rosbag play < bagfile_name >.bag --clock --topic /assemble_yrl
 $ cd ~/catkin_ws/
 $ rosrun pcl_ros pointcloud_to_pcd input:=/laser_cloud_surround
 
-Commands for terminal 3 are optional. If you want to get a map, run them, then you will get pcd files created (in your path set in utility.h) after LeGo-LOAM is finished. (ex. cornerMap.pcd, finalCloud.pcd, surfaceMap.pcd, trajectory.pcd and etc.)
+Commands for terminal 3 is optional. If you want to get a map, run them, then you will get pcd files created (in your path set in utility.h) after LeGo-LOAM is finished. (ex. cornerMap.pcd, finalCloud.pcd, surfaceMap.pcd, trajectory.pcd and etc.)
 ```
