@@ -102,7 +102,7 @@ Default scanning mode we support is mode 2, so please change LiDAR's scanning mo
 When obtaining point cloud data for mapping, data collection should be carried out by moving 0.5 meters and stopping for 2~3 seconds, and so on.
 
 If you want to use LiDAR scanning mode 1, 3 and 4, 
-you should modify the value of 'max_clouds' parmeter in ~/catkin_ws/src/yrl_to_cloud/launch/assemble.launch
+you should modify the value of 'max_clouds' parameter in ~/catkin_ws/src/yrl_to_cloud/launch/assemble.launch
 and values of 'N_SCAN', 'ang_res_y', 'ang_bottom' in ~/catkin_ws/src/LeGO-LOAM/LeGO-LOAM/include/utility.h
 
 'max_clouds': As the vertical field of view increases, the buffer size must be increased. Because, to explore point clouds between consecutive frames for the full range of field of view, proportional amount of point clouds are needed.
