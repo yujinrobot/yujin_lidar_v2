@@ -100,13 +100,15 @@ $ catkin_make
 ## Map your environment
 **Default scanning mode we support is mode 2, so please change LiDAR's scanning mode to 2 through viewer before trying mapping.
 When obtaining point cloud data for mapping, data collection should be carried out by moving 0.5 meters and stopping for 2~3 seconds, and so on.
-Also, remove objects near the LiDAR to avoid poor quality of mapping.**
+Also, REMOVE OBJECTS NEAR THE LIDAR to avoid poor quality of mapping.**
+
+**When you start mapping your environment, DO MAP FIRST IN STRAIGHT COURSE. Take enough time for mapping though straight course to get enough data for making the map. After then, map in curved course rotating your robot.**
 
 If you want to use LiDAR scanning mode 1, 3 and 4, 
 you should modify the value of 'max_clouds' parameter in ~/catkin_ws/src/yrl_to_cloud/launch/assemble.launch
 and values of 'N_SCAN', 'ang_res_y', 'ang_bottom' in ~/catkin_ws/src/LeGO-LOAM/LeGO-LOAM/include/utility.h
 
-'max_clouds': As the vertical field of view increases, the buffer size must be increased. Because, to explore point clouds between consecutive frames for the full range of field of view, proportional amount of point clouds are needed.
+'max_clouds': As the vertical field of view increases, the buffer size must be increased. Because, to explore point clouds between consecutive frames for the full range of field of view, proportional amount of point clouds are needed. As 'max_clouds' increase, waiting time for mapping should be also increased. (scanning time of 1 cloud: 0.05 sec, scanning time for 'max_clouds': 0.05 * max_clouds)
 
 'N_SCAN': This variable represents the number of channels for multichannel LiDAR. For YRL3V2 mode 2, 24 is the optimum value. You can also adjust this value in proportion to the size of the vertical field of view.
 
