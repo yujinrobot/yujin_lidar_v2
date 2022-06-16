@@ -278,10 +278,6 @@ Change code in line 308
 br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "yrl_cloud_id"));
 =>
 br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "yrl_cloud_id"));
- 
-Save and build again
-$ cd ~/catkin_ws
-$ catkin_make
 ```
 ### Modify PCL
 ```
