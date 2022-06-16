@@ -15,6 +15,24 @@
 #ifndef NETWORK_INTERFACE_HPP
 #define NETWORK_INTERFACE_HPP
 
+#include <cstdlib>
+#include <cstring>
+#include <string>
+#include <iostream>
+#include <vector>
+#include <thread>
+#include <atomic>
+
+#include "YRLUDPSocket.hpp"
+#include "YRLTCPSocket.hpp"
+
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>	
+#include <mmsystem.h>	
+#pragma comment(lib, "winmm.lib")	
+#endif
+
 #define NUM_BYTES_FOR_HEADER_ID         4
 #define NUM_BYTES_FOR_FW_VERSION        2
 #define NUM_BYTES_FOR_HW_VERSION        1
@@ -47,10 +65,9 @@
 
 //commands types
 //used for sub_packet_type in protocol
-#define CMD_SET_PARAM                   0x1//commands for getting one specific lidar parameter
-#define CMD_GET_PARAM                   0x2//commands for setting one specific lidar parameter
+#define CMD_SET_PARAM                   0x1//commands for setting one specific lidar parameter
+#define CMD_GET_PARAM                   0x2//commands for getting one specific lidar parameter
 #define CMD_CMD                         0x3//other commands
-#define CMD_RESEND                      0x4//Resend command used when requesting from lidar
 
 //for communicationErrorHandler()
 #define TCP_M_SEND_ERROR        1
@@ -61,24 +78,6 @@
 #define UDP_M_SEND_ERROR        6   
 #define UDP_M_RECV_ERROR        7
 
-#include <cstdlib>
-#include <cstring>
-#include <string>
-#include <iostream>
-#include <vector>
-#include <thread>
-#include <atomic>
-
-#include "YRLUDPSocket.hpp"
-#include "YRLTCPSocket.hpp"
-
-#ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>	
-#include <mmsystem.h>	
-#pragma comment(lib, "winmm.lib")	
-#endif
-
 class NetworkInterface
 {
 public:
@@ -86,11 +85,10 @@ public:
     YRLTCPSocket mTCPSocket;
 
     // buffer for packet
-    unsigned char mTCPRecvBuffer[24];
     unsigned char mBulkDataBuffer[2048];
     std::vector< unsigned char > mUDPRecvBuffer;
 
-    //control whethere getScanningData() runs or not
+    //control whether getScanningData() runs or not
     std::atomic <bool> mbStopGettingScanData;
 
     bool TCPConnected;
@@ -123,19 +121,18 @@ public:
     void saveIPAddr (const std::string& ipAddr);
     void saveTableSize(const uint32_t table_size);
     
-    void communicationErrorHandler (int result, int working_mode, uint8_t command_type, uint8_t code, int32_t data);
     void doCommunicationMode(int working_mode, uint8_t command_type, uint8_t code, int32_t data);
     int requestAndGetResponse (uint8_t command_type, uint8_t code, int32_t data);
     bool sendTCPCommand(uint8_t command_type, uint8_t code, int32_t data);
     int recvTCPResponse2(uint8_t command_type, uint8_t code);
-    bool checkReceivedTCPM (uint8_t command_type, uint8_t code, int32_t data);
     bool infromUDPStart();
 
     char generate_crc(uint8_t* pdata, char length);
     void setTCPCommand(uint8_t packet_id, uint8_t command_type, uint8_t code, int32_t data);
     void setUDPCommand ();
     void printSendTCPMessage();
-    void printReceivedTCPMessage (unsigned char * buffer);
     void printReceivedUDPMessage ();
+
+    //void printReceivedTCPMessage (unsigned char * buffer);
 };
 #endif //NETWORK_INTERFACE_HPP

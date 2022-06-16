@@ -414,7 +414,11 @@ void Yujin_Lidar::lidar_CB()
     //std::cout << "DPR: " << data_pkt_rate << std::endl;
     /* ================================= */
 
-    instance->GetCartesianOutputsWithIntensity(systemTime, buffer_i, buffer_x, buffer_y, buffer_z);
+    int ret = instance->GetCartesianOutputsWithIntensity(systemTime, buffer_i, buffer_x, buffer_y, buffer_z);
+    if (ret == -1)
+    {
+        return;
+    }
 
     auto size_buffer(static_cast<int>(buffer_x.size()));
 

@@ -34,6 +34,7 @@ NetworkInterface::NetworkInterface()
     mUDPRecvBuffer.assign(4096 * 4, 0);
     mUDPSendBuffer.assign(24, 0);
     mTCPSendBuffer.assign(24, 0);
+    memset(mBulkDataBuffer, 0, sizeof(mBulkDataBuffer));
 
     LOGPRINT(NetworkInterface, YRL_LOG_TRACE, ("constructor called\n"));
 }
@@ -130,7 +131,6 @@ void NetworkInterface::doCommunicationMode (const int working_mode, const uint8_
         LOGPRINT(NetworkInterface, YRL_LOG_TRACE, ("Start UDP communication\n"));
         if (!infromUDPStart())
         {
-            //communicationErrorHandler(result, working_mode, command_type, code, data);
         }
         else
         {
@@ -165,32 +165,9 @@ void NetworkInterface::doCommunicationMode (const int working_mode, const uint8_
 #endif
             }
             cnt++;
-        }while (result != 0 && cnt < 2);
-        //communicationErrorHandler(result, working_mode, command_type, code, data);
+        } while (result != 0 && cnt < 2);
         break;
     }
-    default:
-        break;
-    }
-}
-
-void NetworkInterface::communicationErrorHandler (int result, int working_mode, uint8_t command_type, uint8_t code, int32_t data)
-{
-    switch (result)
-    {
-    case TCP_M_SEND_ERROR:
-        break;
-    case TCP_M_LIDAR_SEND_ERROR:
-        // printf("RESEND COMMAND!\n");
-        // mSendTCPPID -= 1; //?????
-        break;
-        break;
-    case TCP_M_DIFF_LEN_ERROR:
-        break;
-    case TCP_M_UNCORRECT_ERROR:
-        break;
-    case TCP_M_RECV_ERROR:
-        break;
     default:
         break;
     }
@@ -340,9 +317,6 @@ int NetworkInterface::recvTCPResponse2 (const uint8_t command_type, const uint8_
 
     unsigned char left[24] = {0};
     int left_num = 0;
-    
-    static uint8_t getparam_pid_cnt = 1;//for counting packet id in case of get parameter.
-    static bool first_get_param = true;
 
     uint8_t recv_pid = 0;
     uint8_t recv_cmd = 0;
@@ -367,50 +341,7 @@ int NetworkInterface::recvTCPResponse2 (const uint8_t command_type, const uint8_
             recv_cnt = mTCPSocket.ReadWithTimeout( &buffer[left_num], sizeof(buffer) - left_num, 1000 );
         }
         else
-        {
-            // while (1)
-            // {
-            //     //recv_cnt = mTCPSocket.ReadWithTimeout( &buffer[0], sizeof(buffer), 1000 );
-            //     recv_cnt = mTCPSocket.ReadWithTimeout( &buffer[recv_len], sizeof(buffer), 1000 );
-            //     printf("recv_cnt: %d\n", recv_cnt);
-            //     if (recv_cnt < 0) //in case of -1, -2, -3, -4
-            //     {
-            //         printf("Failed. Didn't get data\n");
-            //         return -1;//or continue;
-            //     }
-            //     else
-            //     {
-            //         recv_len += recv_cnt;
-            //     }
-            //     printf("recv_len: %d\n", recv_len);
-                
-            //     if (command_type == CMD_SET_PARAM || command_type == CMD_CMD )
-            //     {
-            //         if(recv_len == 24)
-            //         {
-            //             break;
-            //         }
-            //     }
-            //     else
-            //     {
-            //         if (command_type == CMD_GET_PARAM && (code == 13 ||code == 14))
-            //         {
-            //             if(recv_len == 24 * mTableSize)
-            //             {
-            //                 break;
-            //             }
-            //         }
-            //         else
-            //         {
-            //             if(recv_len == 24)
-            //             {
-            //                 break;
-            //             }
-            //         }
-                    
-            //     }
-            // }
-            
+        {            
             recv_cnt = mTCPSocket.ReadWithTimeout( &buffer[0], sizeof(buffer), 1000 );
         }
         
@@ -463,23 +394,6 @@ int NetworkInterface::recvTCPResponse2 (const uint8_t command_type, const uint8_
             {
                 if (i == idx_subheader1 + 3)//pid
                 {
-                    // if(command_type == CMD_GET_PARAM)
-                    // {
-                    //     memcpy(&recv_pid, &buffer[i], sizeof(uint8_t));
-                    //     if (first_get_param)
-                    //     {
-                    //         getparam_pid_cnt = recv_pid;
-                    //         first_get_param = false;
-                    //     }
-                    //     if (recv_pid != getparam_pid_cnt)
-                    //     {
-                    //         printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: WRONG PACKET ORDER. JUMPED TO %d FROM %d. SOME PACKETS ARE MISSING.\n", __FILE__, __FUNCTION__, __LINE__, recv_pid, getparam_pid_cnt);
-                    //         // header = false;
-                    //         // subheader = false;
-                    //         // return false;
-                    //     }
-                    //     getparam_pid_cnt++;
-                    // }
                 }
                 else if (i == idx_subheader1 + 4)//cmd 
                 {
@@ -597,10 +511,7 @@ int NetworkInterface::recvTCPResponse2 (const uint8_t command_type, const uint8_
         {
             if (code == 0) //get whole parameter
             {
-                if (recv_code == 31)//need to change...
-                {
-                    break;
-                }
+
             }
             else if (code == 13 || code == 14 || code == 31 || code == 32)
             {
@@ -619,22 +530,6 @@ int NetworkInterface::recvTCPResponse2 (const uint8_t command_type, const uint8_
                 {
                     break;//break while;
                 }
-
-                // if (recv_m_cnt != mTableSize) 
-                // {
-                //     if (recv_len < 24 * mTableSize)
-                //     {
-                //     }
-                //     else
-                //     {
-                //         printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: DIFFERENT NUMBER OF M. RECEIVED M COUNT: %d, EXPECTED M COUNT: %d. SEND COMMAND AGAIN.\n",__FILE__, __FUNCTION__, __LINE__, recv_m_cnt, mTableSize);
-                //         return -4;
-                //     }
-                // }
-                // else
-                // {
-                //     break;//break while;
-                // }
             }
             else
             {
@@ -650,112 +545,6 @@ int NetworkInterface::recvTCPResponse2 (const uint8_t command_type, const uint8_
     }
 
     return 1;
-}
-
-bool NetworkInterface::checkReceivedTCPM (const uint8_t command_type, const uint8_t code, const int32_t data)
-{
-    //=========================================================================================
-    // checkReceivedTCPM()
-    // Check the data composing the sent message is correct by comparing received M and sent M.
-    // Do not check in case of get whole parameters, get width table, and comp table.
-
-    // return false: Received data is incorrect
-    // return true : Succeeded to receive correct data
-    //=========================================================================================
-    
-    if ((command_type == CMD_GET_PARAM) && (code == 0 || code == 13 || code == 14))
-    {
-        return true;
-    }
-
-    int32_t recv_data = 0;
-    int32_t send_data = 0;
-
-    if (mTCPRecvBuffer[12] != mTCPSendBuffer[12]) //sub header0
-    {
-        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: WRONG SUB HEADER0: [%x][%x] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[12], mTCPSendBuffer[12]);
-        return false;
-    }
-
-    if (mTCPRecvBuffer[13] != mTCPSendBuffer[13]) //sub header1
-    {
-        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: WRONG SUB HEADER1: [%x][%x] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[13], mTCPSendBuffer[13]);
-
-        return false;
-    }
-
-    if (mTCPRecvBuffer[14] != mTCPSendBuffer[14]) //sub length
-    {
-        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: WRONG SUB LENGTH: [%d][%d] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[14], mTCPSendBuffer[14]);
-        return false;
-    }
-
-    if (mTCPRecvBuffer[16] != mTCPSendBuffer[16]) //command type
-    {
-        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: INCORRECT COMMAND TYPE: [%d][%d] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[16], mTCPSendBuffer[16]);
-        return false;
-    }
-
-    if (mTCPRecvBuffer[17] != mTCPSendBuffer[17]) //code
-    {
-        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: INCORRECT CODE: [%d][%d] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[17], mTCPSendBuffer[17]);
-        return false;
-    }
-
-    switch (command_type)
-    {
-    case CMD_SET_PARAM:
-        memcpy(&recv_data, &mTCPRecvBuffer[18], sizeof(recv_data));
-        memcpy(&send_data, &mTCPSendBuffer[18], sizeof(send_data));
-        if (recv_data != send_data) //data
-        {
-            printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: INCORRECT DATA: [%d][%d] \n",__FILE__, __FUNCTION__, __LINE__, recv_data, send_data);
-            return false;
-        }
-
-        if (mTCPRecvBuffer[22] != mTCPSendBuffer[22]) //LRC
-        {
-            printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: INCORRECT LRC: [%x][%x] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[22], mTCPSendBuffer[22]);
-            return false;
-        }
-
-        break;
-
-    case CMD_GET_PARAM:
-        //When send a get parameter command, send data is 0. So we don't compare.
-        break;
-
-    case CMD_CMD:
-        memcpy(&recv_data, &mTCPRecvBuffer[18], sizeof(recv_data));
-        memcpy(&send_data, &mTCPSendBuffer[18], sizeof(send_data));
-        if (recv_data != send_data) //data
-        {
-            printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: INCORRECT DATA: [%d][%d] \n",__FILE__, __FUNCTION__, __LINE__, recv_data, send_data);
-            return false;
-        }
-
-        if (mTCPRecvBuffer[22] != mTCPSendBuffer[22]) //LRC
-        {
-            printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: INCORRECT LRC: [%x][%x] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[22], mTCPSendBuffer[22]);
-            return false;
-        }
-
-        break;
-
-    default:
-        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: Unknown Command Type.\n",__FILE__, __FUNCTION__, __LINE__);
-        return false;
-        break;
-    }
-
-    if (mTCPRecvBuffer[23] != mTCPSendBuffer[23]) //ETX
-    {
-        printf("[FILENAME: %s][FUNCNAME: %s][LINENO: %d]: INCORRECT ETX: [%x][%x] \n",__FILE__, __FUNCTION__, __LINE__, mTCPRecvBuffer[23], mTCPSendBuffer[23]);
-
-        return false;
-    }
-
-    return true;
 }
 
 bool NetworkInterface::infromUDPStart()
@@ -775,8 +564,6 @@ bool NetworkInterface::infromUDPStart()
 
     do {
         //return -1, -2, num of data
-        // 함수 수정 필요 connected udp로
-
         ret = mUDPSocket.WriteTo( mUDPSendBuffer.data(), mUDPSendBuffer.size(), mIPAddr, mPortNum );
         LOGPRINT(NetworkInterface, YRL_LOG_TRACE, ("UDP M number of bytes sent: %d\n", ret));
 
@@ -822,9 +609,9 @@ void NetworkInterface::setTCPCommand(const uint8_t packet_id, const uint8_t comm
     // Setting 3 types of commands to send to Lidar
 
     // <COMMAND TYPES>
-    // SUB_PACK_TYPE_CMD_SET_PARAM     0x1//commands for getting whole lidar parameter
-    // SUB_PACK_TYPE_CMD_GET_PARAM     0x2//commands for setting one specific lidar parameter
-    // SUB_PACK_TYPE_CMD_CMD           0x3//other commands
+    // CMD_SET_PARAM     0x1//commands for setting one specific lidar parameter
+    // CMD_GET_PARAM     0x2//commands for getting one specific lidar parameter
+    // CMD_CMD           0x3//other commands
 
     //The size of command message is 24
     //=========================================================================================
@@ -974,76 +761,177 @@ void NetworkInterface::printSendTCPMessage ()
     uint32_t data = 0;
     std::string log = "Send TCP M: ";
 
-    //printf("Send TCP M: ");
-    //printf("[%x]", *ptr);//header0
+    //header0
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%x]", *ptr);//header1
+
+    //header1
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%x]", *ptr);//header2
+    
+    //header2
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%x]", *ptr);//header3
+    
+    //header3
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//fw version0
+    
+    //fw version0
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//fw version1
+    
+    //fw version1
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//hw version
+    
+    //hw version
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//time_stamp0
+    
+    //time_stamp0
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//time_stamp1
+    
+    //time_stamp1
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//time_stamp2
+    
+    //time_stamp2
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//time_stamp4
+    
+    //time_stamp4
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//descriptor
+    
+    //descriptor
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%x]", *ptr);//header0
+    
+    //header0
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%x]", *ptr);//header1
+    
+    //header1
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//length
+    
+    //length
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//pid
+    
+    //pid
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//command
+    
+    //command
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%d]", *ptr);//code
+    
+    //code
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
+    
+    //data
     memcpy(&data, ptr, sizeof(uint32_t));
-    //printf("[  %d  ]", data);//data
     log += "[" + std::to_string(data) + "]";
     ptr += 4;
-    //printf("[%x]", *ptr);//LRC
+    
+    //LRC
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("[%x]", *ptr);//ETX
+    
+    //ETX
     log += "[" + std::to_string(*ptr) + "]";
     ptr++;
-    //printf("\n");
 
     LOGPRINT(NetworkInterface, YRL_LOG_MESSAGE, ("%s\n", log.c_str()));
 }
 
+void NetworkInterface::printReceivedUDPMessage ()
+{
+    unsigned char * ptr = &mUDPRecvBuffer[0];
+    uint32_t data = 0;
+    std::string log = "RECV UDP M: ";
+
+    //header0
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //header1
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //header2
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //header3
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //fw version0
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //fw version1
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //hw version
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //time_stamp0
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //time_stamp1
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //time_stamp2
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //time_stamp4
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //descriptor
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //frame_id0
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //frame_id1
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //frame_id2
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //frame_id3
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //status id
+    log += "[" + std::to_string(*ptr) + "]";
+    ptr++;
+    
+    //status data
+    memcpy(&data, ptr, sizeof(uint32_t));
+    log += "[" + std::to_string(data) + "]";
+    ptr += 4;
+    
+    LOGPRINT(NetworkInterface, YRL_LOG_MESSAGE, ("%s\n", log.c_str()));
+}
+
+/*
 void NetworkInterface::printReceivedTCPMessage (unsigned char * buffer)
 {
     unsigned char * ptr = &buffer[0];
@@ -1095,68 +983,4 @@ void NetworkInterface::printReceivedTCPMessage (unsigned char * buffer)
     ptr++;
     printf("\n");
 }
-
-void NetworkInterface::printReceivedUDPMessage ()
-{
-    unsigned char * ptr = &mUDPRecvBuffer[0];
-    uint32_t data = 0;
-    std::string log = "RECV UDP M: ";
-
-    //printf("[%x]", *ptr);//header0
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%x]", *ptr);//header1
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%x]", *ptr);//header2
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%x]", *ptr);//header3
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//fw version0
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//fw version1
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//hw version
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//time_stamp0
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//time_stamp1
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//time_stamp2
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//time_stamp4
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//descriptor
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%x]", *ptr);//frame_id0
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%x]", *ptr);//frame_id1
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//frame_id2
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//frame_id3
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    //printf("[%d]", *ptr);//status id
-    log += "[" + std::to_string(*ptr) + "]";
-    ptr++;
-    memcpy(&data, ptr, sizeof(uint32_t));
-    //printf("[  %d  ]", data);//status data
-    log += "[" + std::to_string(*ptr) + "]";
-    //printf("\n");
-    
-    LOGPRINT(NetworkInterface, YRL_LOG_MESSAGE, ("%s\n", log.c_str()));
-}
+*/

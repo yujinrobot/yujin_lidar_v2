@@ -26,6 +26,12 @@
 #include "extracode.hpp"
 #include "NetworkInterface.hpp"
 
+#include <deque>
+#include <thread>
+#include <mutex>
+#include <atomic>
+#include <condition_variable>
+
 #ifdef _WIN32
 #pragma warning(disable : 4251)
 #endif
@@ -49,10 +55,12 @@ protected:
     std::thread mSecondThread;
     std::atomic <bool> mbRunThread;
 
-    std::deque< std::shared_ptr < ValueGroup > > mInputDataDeque;
-    std::deque< std::shared_ptr < PointDataArray > > mOutputDataDeque;
     std::mutex mInputDataLocker;
+    std::condition_variable mCVInputData;
+    std::deque< std::shared_ptr < ValueGroup > > mInputDataDeque;
+
     std::mutex mOutputDataLocker;
+    std::deque< std::shared_ptr < PointDataArray > > mOutputDataDeque;
 
     LidarStatusData* mLidarStatus;
     std::mutex mStatusDataLocker;
@@ -65,7 +73,6 @@ protected:
     std::vector<float> mIntensities0;
     float mDPR;
 
-    
     int32_t* mLidarWidthTable;
     int32_t* mLidarCompTable;
 
@@ -101,7 +108,8 @@ protected:
     void removeThreads();
     int seeDataStructure( unsigned char * ptr, unsigned int numData, unsigned int& time_stamp, std::vector< unsigned int > & values );
     void getScanningData();
-    void dataProcessing();
+    //void dataProcessing();
+    void dataProcessing(std::shared_ptr < ValueGroup > &ptr);
     void threadedFunction1();
     void threadedFunction2();
   
@@ -112,7 +120,6 @@ public:
                         std::vector<float> &_RangeArray, 
                         std::vector<float> &_HorizontalAngleArray,
                         std::vector<float> &_VerticalAngleArray, 
-
                         std::vector<float> &_RisingArray, 
                         std::vector<float> &_IntensityArray,
                         std::vector<float> &_XCoordArray, 

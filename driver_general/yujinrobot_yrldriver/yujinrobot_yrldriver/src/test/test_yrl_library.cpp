@@ -262,8 +262,7 @@ int main( int argc, char ** argv)
     float dpr;
 
     sw.Start();
-    //while (sw.GetTimeElapsedInSec() < 20)
-    while (sw.GetTimeElapsedInSec() < 400)
+    while (sw.GetTimeElapsedInSec() < 10)
     {
 #ifdef _WIN32
         if (ctrlcpressed)
@@ -272,10 +271,17 @@ int main( int argc, char ** argv)
             break;
         }
 #endif
-        instance->GetDPR(dpr);
-        //std::cout << "DPR: " << dpr << std::endl;
 
-        instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+        instance->GetDPR(dpr);
+        // std::cout << "DPR: " << dpr << std::endl;
+
+        int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+        if (ret == -1)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(40));
+            continue;
+        }
+        
         // for (int i(0); i < intensity.size(); i++)
         // {
         //     std::cout << "intensity : " << intensity.at(i) << ", (" << coord_x.at(i) << ", " << coord_y.at(i) << ", " << coord_z.at(i) << ")" << std::endl;

@@ -52,10 +52,7 @@
 #include <string>
 #include <iostream>
 #include <vector>
-#include <deque>
 #include <thread>
-#include <mutex>
-#include <atomic>
 #include <cmath>
 
 enum RawDataGraphType
@@ -117,6 +114,7 @@ class PointDataArray
 {
 public:
     PointDataArray ()
+    : mSystemTime(0)
     {}
 
 public:

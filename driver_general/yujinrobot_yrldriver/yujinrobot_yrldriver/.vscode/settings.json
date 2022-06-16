@@ -62,7 +62,6 @@
         "cfenv": "cpp",
         "cinttypes": "cpp",
         "typeindex": "cpp",
-        "typeinfo": "cpp",
-        "bit": "cpp"
+        "typeinfo": "cpp"
     }
 }

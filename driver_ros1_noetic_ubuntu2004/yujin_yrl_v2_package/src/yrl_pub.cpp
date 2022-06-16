@@ -244,7 +244,12 @@ int main(int argc, char **argv)
 
   while(ros::ok())
   {
-    instance->GetCartesianOutputsWithIntensity (systemTime, buffer_i, buffer_x, buffer_y, buffer_z);
+    int ret = instance->GetCartesianOutputsWithIntensity (systemTime, buffer_i, buffer_x, buffer_y, buffer_z);
+    if (ret == -1)
+    {
+      continue;
+    }
+
     int size_buffer(static_cast<int>(buffer_x.size()));
     if(size_buffer == 0)
     {

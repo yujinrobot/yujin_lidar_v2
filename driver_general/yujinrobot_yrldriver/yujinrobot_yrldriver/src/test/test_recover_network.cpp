@@ -83,9 +83,15 @@ int main( int argc, char ** argv)
     StopWatch sw;
     sw.Start();
     while (sw.GetTimeElapsedInSec() < 10)
-    {  
+    {
         instance->GetDPR(dpr);
-        instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+        int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+        if (ret == -1)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(40));
+            continue;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(40));
     }
     //========================================================================
 
@@ -112,7 +118,7 @@ int main( int argc, char ** argv)
         delete instance;
         return -1;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
     instance->FWCMD(1,14);
     LOGPRINT(main, YRL_LOG_USER, ("CONNECTED\n"));
     //========================================================================
@@ -127,7 +133,13 @@ int main( int argc, char ** argv)
     while (sw.GetTimeElapsedInSec() < 10)
     {
         instance->GetDPR(dpr);
-        instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+        int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+        if (ret == -1)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(40));
+            continue;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(40));
     }
     //========================================================================
 

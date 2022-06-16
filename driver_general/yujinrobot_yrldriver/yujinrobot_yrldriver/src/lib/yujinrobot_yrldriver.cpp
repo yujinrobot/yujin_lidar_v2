@@ -25,6 +25,7 @@ YujinRobotYrlDriver::YujinRobotYrlDriver()
 , cntCommThread(0)
 , cntPrcsThread(0)
 , cntFinalOutput(0)
+, mNumContinuousReadingFailures(0)
 {
     mParams = new Parameters();
     mLidarStatus = new LidarStatusData();
@@ -50,7 +51,8 @@ YujinRobotYrlDriver::~YujinRobotYrlDriver()
     free(mLidarWidthTable);
     free(mLidarCompTable);
     
-    mNI = nullptr;
+    mNI.reset();
+    //mNI = nullptr;
 
     delete mLidarStatus;
     delete mParams;
@@ -72,14 +74,18 @@ void YujinRobotYrlDriver::removeThreads()
     {
         mbRunThread = false;
 
+        mCVInputData.notify_all();
+
         if (mFirstThread.joinable())
         {
             mFirstThread.join();
+            LOGPRINT(YujinRobotYrlDriver, YRL_LOG_TRACE, ("mFirstThread joined\n"));
         }
 
         if (mSecondThread.joinable())
         {
             mSecondThread.join();
+            LOGPRINT(YujinRobotYrlDriver, YRL_LOG_TRACE, ("mSecondThread joined\n"));
         }
     }
 }
@@ -177,36 +183,62 @@ void YujinRobotYrlDriver::threadedFunction1()
 {
     while (mbRunThread)
     {
+        cntCommThread++;
+
+        if (!mNI->mbStopGettingScanData)
+        {
+            getScanningData();
+        }
+        else
+        {
 #ifdef _WIN32
-        timeBeginPeriod(1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        timeEndPeriod(1);
+            timeBeginPeriod(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            timeEndPeriod(1);
 #else
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
 #endif
-        getScanningData();
+        }
     }
 }
 
 void YujinRobotYrlDriver::threadedFunction2()
 {
-    while (mbRunThread)
+    while (1)
     {
-#ifdef _WIN32
-        timeBeginPeriod(1);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
-        timeEndPeriod(1);
-#else
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-#endif
-        dataProcessing();
+        std::shared_ptr< ValueGroup > valueGroup;
+        {
+            std::unique_lock<std::mutex> lock(mInputDataLocker);
+            mCVInputData.wait(lock, [this]{return !mInputDataDeque.empty() || !mbRunThread;});
+            if (!mbRunThread) {
+                return;
+            }
+
+            int sizeInputDataDeque (mInputDataDeque.size());
+            if(sizeInputDataDeque >= 60) /// optimization for low computational power environment
+            {
+                LOGPRINT(YujinRobotYrlDriver, YRL_LOG_DEBUG, ("clear mInputDataDeque :  %d\n", sizeInputDataDeque));
+                LOGPRINT(YujinRobotYrlDriver, YRL_LOG_WARN, ("THERE IS A DELAY IN REAL-TIME INPUT DATA PROCESSING. PLEASE CHECK THE SYSTEM PERFORMANCE.\n"));
+                mInputDataDeque.clear();
+
+                continue;
+            }
+            else if (sizeInputDataDeque >= 30) /// 30 data processing = data for 1 rotation
+            {
+                LOGPRINT(YujinRobotYrlDriver, YRL_LOG_DEBUG, ("popfront mInputDataDeque :  %d\n", sizeInputDataDeque));
+                mInputDataDeque.pop_front();
+            }
+
+            valueGroup = mInputDataDeque.front();
+            mInputDataDeque.pop_front();
+        }
+
+        dataProcessing(valueGroup);
     }
 }
 
 void YujinRobotYrlDriver::getScanningData()
 { 
-    cntCommThread++;
-
     //==================================================================================================
     // getScanningData()
     //
@@ -214,11 +246,6 @@ void YujinRobotYrlDriver::getScanningData()
     // This sends UDP message and receive UDP message from server.
     // Parse the received message and push it to input queue
     //==================================================================================================
-
-    if (mNI->mbStopGettingScanData)
-    {
-        return;
-    }
 
     mNI->mUDPRecvBuffer.assign(4096 * 4, 0);
     int sizeRecvM = mNI->mUDPSocket.ReadWithTimeout( mNI->mUDPRecvBuffer.data(), mNI->mUDPRecvBuffer.size(), 100 );
@@ -249,9 +276,11 @@ void YujinRobotYrlDriver::getScanningData()
         {
             valueGroup->system_time = time_now;
 
-            mInputDataLocker.lock();
-            mInputDataDeque.push_back(valueGroup);           
-            mInputDataLocker.unlock();
+            {
+                std::lock_guard<std::mutex> lock(mInputDataLocker);
+                mInputDataDeque.push_back(valueGroup);
+            }
+            mCVInputData.notify_all();
         }
     }
 }
@@ -289,8 +318,6 @@ int YujinRobotYrlDriver::seeDataStructure( unsigned char * ptr, unsigned int num
     }
     preFrameID = frameID;
 
-    //static unsigned int timestamp_pre( header_time_stamp );//not used
-    //timestamp_pre = header_time_stamp;
     time_stamp = timeStamp;
 
     unsigned char statusID(0);          //1byte
@@ -345,7 +372,6 @@ int YujinRobotYrlDriver::seeDataStructure( unsigned char * ptr, unsigned int num
 
     if(binary_buffer[0] == 1)
     {
-        //error_created = true;
         LOGPRINT(YujinRobotYrlDriver, YRL_LIDAR_INFO, ("ERROR A: POWER ERROR\n"));
     }
     if (binary_buffer[1] == 1)
@@ -415,10 +441,8 @@ int YujinRobotYrlDriver::seeDataStructure( unsigned char * ptr, unsigned int num
     return 1;
 }
 
-void YujinRobotYrlDriver::dataProcessing()
+void YujinRobotYrlDriver::dataProcessing(std::shared_ptr < ValueGroup > &ptr)
 {
-    cntPrcsThread++;
-
     //==================================================================================================
     // dataProcessing()
     //
@@ -431,43 +455,11 @@ void YujinRobotYrlDriver::dataProcessing()
     // return -1: same frame id
     // return 1: normal case
     //==================================================================================================
+    cntPrcsThread++;
 
-    mInputDataLocker.lock();
-    int sizeInputDataDeque (mInputDataDeque.size());
-    if(sizeInputDataDeque == 0)
-    {
-        mInputDataLocker.unlock();
-        return;
-    }
-    else
-    {
-        if(sizeInputDataDeque >= 60) /// optimization for low computational power environment
-        {
-            LOGPRINT(YujinRobotYrlDriver, YRL_LOG_DEBUG, ("clear mInputDataDeque :  %d\n", sizeInputDataDeque));
-            LOGPRINT(YujinRobotYrlDriver, YRL_LOG_WARN, ("THERE IS A DELAY IN REAL-TIME INPUT DATA PROCESSING. PLEASE CHECK THE SYSTEM PERFORMANCE.\n"));
-
-            mInputDataDeque.clear();
-            mInputDataLocker.unlock();
-            return;
-        }
-        else if (sizeInputDataDeque >= 30) /// 30 data processing = data for 1 rotation
-        {
-            LOGPRINT(YujinRobotYrlDriver, YRL_LOG_DEBUG, ("popfront mInputDataDeque :  %d\n", sizeInputDataDeque));
-            mInputDataDeque.pop_front();
-            mInputDataLocker.unlock();
-            return;
-        }
-        
-        //LOGPRINT(YujinRobotYrlDriver, YRL_LOG_DEBUG, ("Number of data collected = %ld.\n", mInputDataDeque.size()));
-    }
-    
-    std::shared_ptr< ValueGroup > valueGroup = mInputDataDeque.front();
-    mInputDataDeque.pop_front();
-    mInputDataLocker.unlock();
-
-    std::vector<unsigned int> values(valueGroup->DataArr);
-    unsigned int timeStamp (valueGroup->TimeStamp);
-    double sysTime (valueGroup->system_time);
+    std::vector<unsigned int> values(ptr->DataArr);
+    unsigned int timeStamp (ptr->TimeStamp);
+    double sysTime (ptr->system_time);
 
     /// DPR TEST
     static StopWatch timer;
@@ -544,30 +536,26 @@ void YujinRobotYrlDriver::dataProcessing()
                     continue;
                 }
 
-                // measure time to take 100 times horizontal rotations
-                double current_time_scan = StopWatch().GetCurrentTimeInSeconds();
-                static double time_scan(current_time_scan);
-                static int no_rotations(0);
-                if( ++no_rotations >= 100 )
-                {
-                    no_rotations = 0;
-                    double scan_interval = current_time_scan - time_scan;
-                    time_scan = current_time_scan;
-                    //LOGPRINT(YujinRobotYrlDriver, YRL_LOG_DEBUG, ("fps = %lf\n", 100.0 / scan_interval));
-                }
+                // // measure time to take 100 times horizontal rotations
+                // double current_time_scan = StopWatch().GetCurrentTimeInSeconds();
+                // static double time_scan(current_time_scan);
+                // static int no_rotations(0);
+                // if( ++no_rotations >= 100 )
+                // {
+                //     no_rotations = 0;
+                //     double scan_interval = current_time_scan - time_scan;
+                //     time_scan = current_time_scan;
+                //     //LOGPRINT(YujinRobotYrlDriver, YRL_LOG_DEBUG, ("fps = %lf\n", 100.0 / scan_interval));
+                // }
 
-                // convert horizontal angles from counts to radians
                 // Here, mRecordPreHoriAngleCnt is considered the total number of counts.
                 double usec_to_horizontal_angle = (2.0 * M_PI) / static_cast<double>(mRecordPreHoriAngleCnt);
-                for( int j(0); j < mHAngles.size(); j++ )
-                {
-                    mHAngles[j] *= usec_to_horizontal_angle;
-                }
 
-                //shift range to keep angle range: -PI ~ +PI
+                // Convert horizontal angles from counts to radians
+                // And shift range to keep angle range: -PI ~ +PI
                 for( int j(0); j < mHAngles.size(); j++ )
                 {
-                    float ta = mHAngles[j];
+                    float ta = mHAngles[j] * usec_to_horizontal_angle;
                     
                     //shift angle range if it needed
                     if( ta > M_PI ) ta -= 2*M_PI;
@@ -663,7 +651,7 @@ void YujinRobotYrlDriver::dataProcessing()
                     }
                     else
                     {
-                        coordinateVector = Eigen::Vector3f(xCoord + mParams->mSensorCoordX, yCoord + mParams->mSensorCoordY, zCoord+mParams->mSensorCoordZ);
+                        coordinateVector = Eigen::Vector3f(xCoord + mParams->mSensorCoordX, yCoord + mParams->mSensorCoordY, zCoord + mParams->mSensorCoordZ);
                     }
 
                     if( coordinateVector.z() > mParams->mMaxZParam || coordinateVector.z() < mParams->mMinZParam)
@@ -725,7 +713,6 @@ void YujinRobotYrlDriver::dataProcessing()
                     cntPrcsThread = 0;
                     cntFinalOutput = 0;
                 }
-
 
                 /// clear all in order to get new data
                 mRanges0.clear();
@@ -848,7 +835,6 @@ void YujinRobotYrlDriver::GetErrorCode (unsigned int &origin_info)
 
 void YujinRobotYrlDriver::GetDPR(float &dpr)
 {
-    //is lock needed?
     dpr = mDPR;
 }
 

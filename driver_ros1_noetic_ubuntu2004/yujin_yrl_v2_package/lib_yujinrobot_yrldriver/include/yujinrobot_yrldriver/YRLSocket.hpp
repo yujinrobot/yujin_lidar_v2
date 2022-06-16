@@ -60,13 +60,13 @@ public:
     }
 
 #ifdef _WIN32
-    YRLSocket(const std::string& socketName, /*int socketType, int protocolName,*/ SOCKET socketDescriptor)
+    YRLSocket(const std::string& socketName, SOCKET socketDescriptor)
         : socket_name(socketName)
         , socket_descriptor(socketDescriptor)
         , blocking_mode(true)
     {}
 #else
-    YRLSocket(const std::string& socketName, /*int socketType, int protocolName,*/ int socketDescriptor)
+    YRLSocket(const std::string& socketName, int socketDescriptor)
         : socket_name(socketName)
         , socket_descriptor(socketDescriptor)
         , blocking_mode(true)
