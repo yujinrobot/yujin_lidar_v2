@@ -17,6 +17,9 @@
 #include "../../include/yujinrobot_yrldriver/yujinrobot_yrldriver.hpp"
 
 #ifdef _WIN32
+// IN CASE OF USING TEST CODE IN WINDOWS,
+// THERE CAN BE INCOMPLETE TERMINATION WITH CTRL-C SIGNAL SOMETIMES.
+// THIS CAN ENFORCE NORMAL TERMINATION WITH CTRL-C SIGNAL.
 bool ctrlcpressed = false;
 BOOL WINAPI CtrlHandler(DWORD fdwCtrlType)
 {
@@ -77,6 +80,8 @@ int main( int argc, char ** argv)
     std::string ip = argv[1];
 
 #ifdef _WIN32
+    // IN CASE OF USING TEST CODE IN WINDOWS,
+    // 'WSAStartup' MUST BE CALLED FOR INITIALIZING WINDOWS SOCKET LIBRARY.
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
     {
