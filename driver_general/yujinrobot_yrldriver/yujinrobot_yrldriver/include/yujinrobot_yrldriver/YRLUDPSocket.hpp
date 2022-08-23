@@ -19,32 +19,32 @@
 class YRLUDPSocket : public YRLSocket
 {
 public:
-    YRLUDPSocket( const std::string & socketName)
-    : YRLSocket(socketName,SOCK_DGRAM, IPPROTO_UDP)
-    {}
+  YRLUDPSocket( const std::string & socketName)
+  : YRLSocket(socketName,SOCK_DGRAM, IPPROTO_UDP)
+  {}
 
-    ~YRLUDPSocket()
+  ~YRLUDPSocket()
+  {
+    LOGPRINT(YRLUDPSocket, YRL_LOG_TRACE, ("distructor called\n"));
+  }
+
+  int WriteTo( const void *buffer, int bufferLen, const std::string &serverAddress, unsigned short int serverPort )
+  {
+    LOGPRINT(YRLUDPSocket, YRL_LOG_TRACE, ("UDP send M size: %d\n", bufferLen));
+    // structure for destination
+    sockaddr_in dest_addr;
+
+    // at the first we have to make structure to specify destination
+    if( !buildAddrStructure(serverAddress, serverPort, dest_addr) )
     {
-        LOGPRINT(YRLUDPSocket, YRL_LOG_TRACE, ("distructor called\n"));
+      LOGPRINT(YRLUDPSocket, YRL_LOG_ERROR, ("Empty serverAddress\n"));
+      return -2;
     }
 
-    int WriteTo( const void *buffer, int bufferLen, const std::string &serverAddress, unsigned short int serverPort )
-    {
-        LOGPRINT(YRLUDPSocket, YRL_LOG_TRACE, ("UDP send M size: %d\n", bufferLen));
-        // structure for destination
-        sockaddr_in dest_addr;
-
-        // at the first we have to make structure to specify destination
-        if( !buildAddrStructure(serverAddress, serverPort, dest_addr) )
-        {
-            LOGPRINT(YRLUDPSocket, YRL_LOG_ERROR, ("Empty serverAddress\n"));
-            return -2;
-        }
-
-        //send data to destination
-        //success : return num of bytes
-        //fail: return -1
-        return sendto(socket_descriptor, (char *) buffer, bufferLen, 0, (sockaddr *) &dest_addr, sizeof(dest_addr));
-    }
+    //send data to destination
+    //success : return num of bytes
+    //fail: return -1
+    return sendto(socket_descriptor, (char *) buffer, bufferLen, 0, (sockaddr *) &dest_addr, sizeof(dest_addr));
+  }
 };
 #endif //YRL_UDP_SOCKET_HPP

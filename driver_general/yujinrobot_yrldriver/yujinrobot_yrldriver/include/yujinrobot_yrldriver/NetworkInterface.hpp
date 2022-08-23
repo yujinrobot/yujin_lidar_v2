@@ -81,58 +81,58 @@
 class NetworkInterface
 {
 public:
-    YRLUDPSocket mUDPSocket;
-    YRLTCPSocket mTCPSocket;
+  YRLUDPSocket mUDPSocket;
+  YRLTCPSocket mTCPSocket;
 
-    // buffer for packet
-    unsigned char mBulkDataBuffer[2048];
-    std::vector< unsigned char > mUDPRecvBuffer;
+  // buffer for packet
+  unsigned char mBulkDataBuffer[2048];
+  std::vector< unsigned char > mUDPRecvBuffer;
 
-    //control whether getScanningData() runs or not
-    std::atomic <bool> mbStopGettingScanData;
+  //control whether getScanningData() runs or not
+  std::atomic <bool> mbStopGettingScanData;
 
-    bool TCPConnected;
+  bool TCPConnected;
 
-    std::string mIPAddr;
-    int mPortNum;
+  std::string mIPAddr;
+  int mPortNum;
    
 private:
-    std::vector< unsigned char > mTCPSendBuffer;
-    std::vector< unsigned char > mUDPSendBuffer;
+  std::vector< unsigned char > mTCPSendBuffer;
+  std::vector< unsigned char > mUDPSendBuffer;
 
-    //0: receving data from Lidar
-    //1: sending command to Lidar
-    int mCommWorkingMode;
+  //0: receving data from Lidar
+  //1: sending command to Lidar
+  int mCommWorkingMode;
 
-    //for pid of sending TCP M
-    uint8_t mSendTCPPID;
-    
-    //for save table_size
-    uint32_t mTableSize;
+  //for pid of sending TCP M
+  uint8_t mSendTCPPID;
+  
+  //for save table_size
+  uint32_t mTableSize;
 
 public:
-    NetworkInterface();
-    ~NetworkInterface();
-    
-    int ConnectTCP();
-    void CloseTCP();
-    
-    void savePortNum (const int portNum);
-    void saveIPAddr (const std::string& ipAddr);
-    void saveTableSize(const uint32_t table_size);
-    
-    void doCommunicationMode(int working_mode, uint8_t command_type, uint8_t code, int32_t data);
-    int requestAndGetResponse (uint8_t command_type, uint8_t code, int32_t data);
-    bool sendTCPCommand(uint8_t command_type, uint8_t code, int32_t data);
-    int recvTCPResponse2(uint8_t command_type, uint8_t code);
-    bool infromUDPStart();
+  NetworkInterface ();
+  ~NetworkInterface ();
+  
+  int ConnectTCP ();
+  void CloseTCP ();
+  
+  void savePortNum (const int portNum);
+  void saveIPAddr (const std::string& ipAddr);
+  void saveTableSize (const uint32_t table_size);
+  
+  void doCommunicationMode (int working_mode, uint8_t command_type, uint8_t code, int32_t data);
+  int requestAndGetResponse (uint8_t command_type, uint8_t code, int32_t data);
+  bool sendTCPCommand (uint8_t command_type, uint8_t code, int32_t data);
+  int recvTCPResponse2 (uint8_t command_type, uint8_t code);
+  bool infromUDPStart ();
 
-    char generate_crc(uint8_t* pdata, char length);
-    void setTCPCommand(uint8_t packet_id, uint8_t command_type, uint8_t code, int32_t data);
-    void setUDPCommand ();
-    void printSendTCPMessage();
-    void printReceivedUDPMessage ();
+  char generate_crc (uint8_t* pdata, char length);
+  void setTCPCommand (uint8_t packet_id, uint8_t command_type, uint8_t code, int32_t data);
+  void setUDPCommand ();
+  void printSendTCPMessage ();
+  void printReceivedUDPMessage ();
 
-    //void printReceivedTCPMessage (unsigned char * buffer);
+  //void printReceivedTCPMessage (unsigned char * buffer);
 };
 #endif //NETWORK_INTERFACE_HPP
