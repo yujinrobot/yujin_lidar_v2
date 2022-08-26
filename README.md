@@ -21,8 +21,11 @@ cd yujin_lidar_v2/driver_general/yujinrobot_yrldriver
 mkdir build
 cd build
 cmake ..
+make install
 ```
-
+'lib_yujinrobot_yrldriver' is created in above.
+In 'lib_yujinrobot_yrldriver', there are driver library, include files, and test code binaries.
+You can use it when you build ros1, ros2 package, just copying it into ros1, ros2 package.
 
 ## ROS1 Package
 
