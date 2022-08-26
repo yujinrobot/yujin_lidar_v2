@@ -23,7 +23,7 @@ cd build
 cmake ..
 make install
 ```
-'lib_yujinrobot_yrldriver' is created in above.
+Now you created 'lib_yujinrobot_yrldriver' in the above commands.
 In 'lib_yujinrobot_yrldriver', there are driver library, include files, and test code binaries.
 You can use it when you build ros1, ros2 package, just copying it into ros1, ros2 package.
 
