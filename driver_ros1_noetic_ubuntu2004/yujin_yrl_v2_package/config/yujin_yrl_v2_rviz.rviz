@@ -58,8 +58,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 1.9394958019256592
-        Min Value: 0.014681816101074219
+        Max Value: 0.5901278853416443
+        Min Value: 0.001895211637020111
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -87,7 +87,7 @@ Visualization Manager:
   Global Options:
     Background Color: 48; 48; 48
     Default Light: true
-    Fixed Frame: yrl_cloud_id
+    Fixed Frame: map
     Frame Rate: 30
   Name: root
   Tools:
@@ -111,7 +111,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 17.938413619995117
+      Distance: 16.927265167236328
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -127,9 +127,9 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.2197964191436768
+      Pitch: 1.4547961950302124
       Target Frame: <Fixed Frame>
-      Yaw: 1.6385464668273926
+      Yaw: 1.2585468292236328
     Saved: ~
 Window Geometry:
   Displays:
@@ -148,4 +148,4 @@ Window Geometry:
     collapsed: false
   Width: 1920
   X: 246
-  Y: 271
+  Y: 27
