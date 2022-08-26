@@ -295,7 +295,7 @@ Replace 'LeGO-LOAM' in '~/catkin_ws/src/LeGO-LOAM' with 'yujin_lidar_v2/LeGO_LOA
 $ cd ~/catkin_ws/src/yujin_yrl_v2_package/src
 $ gedit ./yrl_pub.cpp
 
-Change code in line 308
+Change code in line 313
 br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "map", "yrl_cloud_id"));
 =>
 br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "base_link", "yrl_cloud_id"));
