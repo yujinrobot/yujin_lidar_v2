@@ -31,12 +31,12 @@
 //__FILE__, __FUNCTION__, __LINE__
 
 #define LOGPRINT(PREFIX, LEVEL, ARGS) \
- if (LOG_LV > LEVEL) { \
-  if (LEVEL != YRL_LIDAR_INFO) { printf("["); printf(#PREFIX); printf("]");} \
-  printf("["); printf(#LEVEL); printf("]"); \
-  if (LEVEL == YRL_LOG_ERROR) printf("[%s:%d] ", __FUNCTION__, __LINE__);  \
-  if (LEVEL == YRL_LOG_INFO) printf("[%s:%d] ", __FUNCTION__, __LINE__);  \
-  if (LEVEL == YRL_LOG_DEBUG) printf("[%s:%d] ", __FUNCTION__, __LINE__);  \
-  printf(" "); printf ARGS; }
+  if (LOG_LV > LEVEL) { \
+    if (LEVEL != YRL_LIDAR_INFO) { printf("["); printf(#PREFIX); printf("]");} \
+    printf("["); printf(#LEVEL); printf("]"); \
+    if (LEVEL == YRL_LOG_ERROR) printf("[%s:%d] ", __FUNCTION__, __LINE__);  \
+    if (LEVEL == YRL_LOG_INFO) printf("[%s:%d] ", __FUNCTION__, __LINE__);  \
+    if (LEVEL == YRL_LOG_DEBUG) printf("[%s:%d] ", __FUNCTION__, __LINE__);  \
+    printf(" "); printf ARGS; }
 
 #endif //YRL_LOG_HPP
