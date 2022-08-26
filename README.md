@@ -13,6 +13,17 @@ YRL series LiDAR is designed to detect objects, measure distances from surroundi
 ![](cafe.gif)
 ![](4F.gif)
 
+## YRL3V2 Driver Package
+### Build YRL3V2 Driver Package
+```bash
+git clone https://github.com/yujinrobot/yujin_lidar_v2.git
+cd yujin_lidar_v2/driver_general/yujinrobot_yrldriver
+mkdir build
+cd build
+cmake ..
+```
+
+
 ## ROS1 Package
 
 - ROS Version: Noetic
