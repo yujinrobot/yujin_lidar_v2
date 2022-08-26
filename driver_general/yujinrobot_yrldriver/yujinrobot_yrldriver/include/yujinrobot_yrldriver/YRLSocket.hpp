@@ -21,6 +21,7 @@
 #include <winsock2.h>
 #pragma comment(lib, "Ws2_32.lib")
 #pragma warning(disable: 4819)
+#pragma warning(disable : 4996)
 #else
 #include <unistd.h>//for close()
 #include <arpa/inet.h>
@@ -32,6 +33,8 @@
 #include <cstring>
 #include <string>
 #include <iostream>
+#include <string.h>
+#include <errno.h>
 #include "YRLLOG.hpp"
 
 class YRLSocket 
@@ -144,11 +147,20 @@ public:
 #endif
     
     // select error
-    if (ret_select == -1)
+#ifdef _WIN32
+    if (ret_select == SOCKET_ERROR)
     {
-      LOGPRINT(YRLSocket, YRL_LOG_ERROR, ("select error\n"));
+      int error = WSAGetLastError();
+      LOGPRINT(YRLSocket, YRL_LOG_ERROR, ("recv() error: %d\n", error));
       return -2;
     }
+#else
+    if (ret_select == -1)
+    {
+      LOGPRINT(YRLSocket, YRL_LOG_ERROR, ("select error. errno:%d, %s\n", errno, strerror(errno)));
+      return -2;
+    }
+#endif
     else if (ret_select == 0)
     {//time out
       LOGPRINT(YRLSocket, YRL_LOG_ERROR, ("time out\n"));
@@ -162,10 +174,18 @@ public:
         // success: return num of received data (>= 0) (0: EOF)
         // fail: return -1
         int ret = ::recv(socket_descriptor, (char*)buffer, bufferLen, 0);//recv: window, linux 동일
+#ifdef _WIN32
+        if (ret == SOCKET_ERROR)
+        {
+          int error = WSAGetLastError();
+          LOGPRINT(YRLSocket, YRL_LOG_ERROR, ("recv() error: %d\n", error));
+        }
+#else
         if (ret < 0)
         {
-          LOGPRINT(YRLSocket, YRL_LOG_ERROR, ("Failed\n"));
+          LOGPRINT(YRLSocket, YRL_LOG_ERROR, ("recv() error. errno:%d, %s\n", errno, strerror(errno)));
         }
+#endif
         return ret;
       }
 

@@ -35,9 +35,9 @@ public:
     setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEADDR, (char*)&option, sizeof(option));
 #else
     int option;
-    socklen_t option_len;
-    option_len = sizeof(option);
-    setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEADDR, (void*) &option, option_len);
+    // socklen_t option_len;
+    // option_len = sizeof(option);
+    setsockopt(socket_descriptor, SOL_SOCKET, SO_REUSEADDR, (void*) &option, sizeof(option));
 #endif
     sockaddr_in localAddr;
     setLocalPort(localPortNumber, localAddr);
