@@ -51,6 +51,10 @@ source /opt/ros/noetic/setup.bash
 mkdir -p ~/catkin_ws/src/
 cd ~/catkin_ws/src/
 *** copy 'yujin_yrl_v2_package' from 'yujin_lidar_v2/driver_ros1_noetic_ubuntu2004' to this directory
+
+***copy 'lib_yujinrobot_yrldriver', you created in 'YRL3V2 Driver Package-Build YRL3V2 Driver Package' above, to '~/catkin_ws/src/yujin_yrl_v2_package'
+***every time you made changes in driver, you should apply changed driver library to ros package.
+
 cd ..
 catkin_make
 source ~/catkin_ws/devel/setup.bash
