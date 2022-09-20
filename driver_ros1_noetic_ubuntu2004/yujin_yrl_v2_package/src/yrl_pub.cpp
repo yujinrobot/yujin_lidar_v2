@@ -105,19 +105,18 @@ int main(int argc, char **argv)
   //========================================================================
 
   //== 3. START DRIVER =====================================================
-  // THIS FUNCTION SHOULD BE ONLY ONCE CALLED.
-  int ret = instance->Start();
-  if (ret < 0)
+  int ret = instance->ConnectTOYRL3V2();
+  if (ret == -1)
   {
-      std::string IpAddress = instance->GetIPAddrParam();
-      int PortNumber = instance->GetPortNumParam ();
-      LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
-      LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
-      delete instance;
-      return -1;
+    std::string IpAddress = instance->GetIPAddrParam();
+    int PortNumber = instance->GetPortNumParam ();
+    LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
+    LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
+    delete instance;
+    return -1;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  instance->FWCMD(1, 14);
+  
+  instance->StartThreads();
   //========================================================================
 
   //== 4. APPLY LiDAR POSE =================================================
@@ -205,8 +204,7 @@ int main(int argc, char **argv)
   //========================================================================
 
   //== 7. START GETTING SENSOR DATA ========================================
-  instance->FWCMD(1, 13);
-  instance->StartStreaming();
+  instance->StartGettingDataStream();
   //
   // YOU CAN GET SW DATA PACKET RATE THROUGH GetDPR()
   // void GetDPR(float &dpr)
@@ -247,6 +245,7 @@ int main(int argc, char **argv)
     int ret = instance->GetCartesianOutputsWithIntensity (systemTime, buffer_i, buffer_x, buffer_y, buffer_z);
     if (ret == -1)
     {
+      // std::cout << "empty queue\n";
       continue;
     }
 

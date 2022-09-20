@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>yujin_yrl_v2_package</name>
-  <version>2.4.0</version>
+  <version>2.4.1</version>
 
   <description>ROS package for yrl V2 series</description>
   <author email="hjkim2@yujinrobot.com">Hyeon Jeong Kim</author>

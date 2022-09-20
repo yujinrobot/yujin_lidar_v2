@@ -52,63 +52,50 @@ int main( int argc, char ** argv)
   //========================================================================
 
   //== 3. START DRIVER =====================================================
-  // THIS FUNCTION SHOULD BE ONLY ONCE CALLED.
-  int ret = instance->Start();
-  if (ret < 0)
+  int ret = instance->ConnectTOYRL3V2();
+  if (ret == -1)
   {
     std::string IpAddress = instance->GetIPAddrParam();
     int PortNumber = instance->GetPortNumParam ();
     LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
     LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
     delete instance;
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return -1;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  instance->FWCMD(1, 14);
+
+  instance->StartThreads();
   //========================================================================
 
-  //== 4. GET CURRENT IP OF LIDAR ==========================================
-  int ip_a, ip_b, ip_c, ip_d;
-  instance->FWGetYRLIPAddress(ip_a, ip_b, ip_c, ip_d);
+  //== 4. SET NEW IP OF LIDAR ==============================================
+  instance->UserChangeIP(new_ip);
   //========================================================================
 
-  //== 5. SET NEW IP OF LIDAR ==============================================
-  // PUT NEW IP ADDRESS INTO FWSetYRLIPAddress()
-  std::stringstream s(new_ip);
-  int a,b,c,d;
-  char ch;
-  s >> a >> ch >> b >> ch >> c >> ch >> d;
-  instance->FWSetYRLIPAddress(a, b, c, d);
-  instance->FWCMD(1, 12);
+  //== 5. DISCONNECT LIDAR =================================================
+  instance->DisconnectTOYRL3V2();
   //========================================================================
 
-  //== 6. GET NEW IP OF LIDAR ==============================================
-  instance->FWGetYRLIPAddress(ip_a, ip_b, ip_c, ip_d);
-  //========================================================================
-
-  //== 7. DISCONNECT LIDAR =================================================
-  instance->StopTCP();
-  std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-  //========================================================================
-
-  //== 8. SET IP PARAMETER =================================================
+  //== 6. SET IP PARAMETER =================================================
   // SET IP PARAMETER WITH NEW IP ADDRESS
   instance->SetIPAddrParam(new_ip);
   //========================================================================
 
-  //== 9. CONNECT TO LIDAR AGAIN ===========================================
-  ret = instance->StartTCP();
-  if (ret < 0)
+  //== 7. CONNECT TO LIDAR AGAIN ===========================================
+  ret = instance->ConnectTOYRL3V2();
+  if (ret == -1)
   {
     std::string IpAddress = instance->GetIPAddrParam();
     int PortNumber = instance->GetPortNumParam ();
     LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
     LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
     delete instance;
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return -1;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  instance->FWCMD(1, 14);
   //========================================================================
 
   delete instance;

@@ -52,34 +52,76 @@ int main( int argc, char ** argv)
   //========================================================================
 
   //== 3. START DRIVER =====================================================
-  // THIS FUNCTION SHOULD BE ONLY ONCE CALLED.
-  int ret = instance->Start();
-  if (ret < 0)
+  int ret = instance->ConnectTOYRL3V2();
+  if (ret == -1)
   {
     std::string IpAddress = instance->GetIPAddrParam();
     int PortNumber = instance->GetPortNumParam ();
     LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
     LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
     delete instance;
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return -1;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  instance->FWCMD(1, 14);
+  
+  instance->StartThreads();
   //========================================================================
 
   //== 4. SET NEW MODE OF LIDAR ============================================
-  // CHANGE SCANNING MODE OF LIDAR
-  // MODE: 1, 2, 3, 4
-  instance->FWSetYRLVerticalMode(mode);
-  instance->FWCMD(1, 9);
-  instance->FWCMD(1, 14);
+  instance->UserChangeMode (mode);
   //========================================================================
 
-  //== 5. CONFIRM THE CHANGES ==============================================
-  instance->FWGetYRLVerticalMode();
-  instance->FWGetYRLVerticalSpeed();
-  instance->FWGetYRLVerticalAngleLower();
-  instance->FWGetYRLVerticalAngleUpper();
+  //== 5. START GETTING SENSOR DATA ========================================
+  LOGPRINT(main, YRL_LOG_USER, ("START GETTING SCANNED DATA\n"));
+  instance->StartGettingDataStream();
+  
+  double SystemTime;
+  std::vector <float> IntensityArray;
+  std::vector <float> XCoordArray;
+  std::vector <float> YCoordArray;
+  std::vector <float> ZCoordArray;
+  float dpr;
+
+  LOGPRINT(main, YRL_LOG_USER, ("DO SOMETHING....\n"));
+  StopWatch sw;
+  sw.Start();
+  while (sw.GetTimeElapsedInSec() < 10)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    instance->GetDPR(dpr);
+    int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+    if (ret == -1)
+    {
+      // std::cout << "empty queue\n";
+      continue;
+    }
+  }
+  //========================================================================
+
+  //== 6. SET NEW MODE OF LIDAR DURING GETTING SENSOR DATA =================
+  instance->StopGettingDataStreamAndSet();
+  instance->UserChangeMode (mode);
+  //========================================================================
+
+  //== 7. START GETTING SENSOR DATA AGAIN ==================================
+  LOGPRINT(main, YRL_LOG_USER, ("START GETTING SCANNED DATA AGAIN\n"));
+  instance->StartGettingDataStream();
+  
+  LOGPRINT(main, YRL_LOG_USER, ("DO SOMETHING....\n"));
+  sw.Start();
+  while (sw.GetTimeElapsedInSec() < 10)
+  {
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
+    instance->GetDPR(dpr);
+    int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
+    if (ret == -1)
+    {
+      // std::cout << "empty queue\n";
+      continue;
+    }
+  }
   //========================================================================
 
   delete instance;

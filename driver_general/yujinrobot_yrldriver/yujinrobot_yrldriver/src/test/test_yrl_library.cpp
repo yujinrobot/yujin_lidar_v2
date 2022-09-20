@@ -95,19 +95,21 @@ int main( int argc, char ** argv)
   //========================================================================
 
   //== 3. START DRIVER =====================================================
-  // THIS FUNCTION SHOULD BE ONLY ONCE CALLED.
-  int ret = instance->Start();
-  if (ret < 0)
+  int ret = instance->ConnectTOYRL3V2();
+  if (ret == -1)
   {
     std::string IpAddress = instance->GetIPAddrParam();
     int PortNumber = instance->GetPortNumParam ();
     LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
     LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
     delete instance;
+#ifdef _WIN32
+  WSACleanup();
+#endif
     return -1;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  instance->FWCMD(1, 14);
+
+  instance->StartThreads();
   //========================================================================
 
   //== 4. APPLY LiDAR POSE =================================================
@@ -249,9 +251,7 @@ int main( int argc, char ** argv)
   //                                     std::vector <float>& _VerticalAngleArray);
   //
   // WE WILL GET DATA DURING 20SECS.
-
-  instance->FWCMD(1, 13);
-  instance->StartStreaming();
+  instance->StartGettingDataStream();
   
   StopWatch sw;
   double SystemTime;
@@ -262,7 +262,7 @@ int main( int argc, char ** argv)
   float dpr;
 
   sw.Start();
-  while (sw.GetTimeElapsedInSec() < 10)
+  while (sw.GetTimeElapsedInSec() < 20)
   {
 #ifdef _WIN32
     if (ctrlcpressed)
@@ -271,6 +271,7 @@ int main( int argc, char ** argv)
       break;
     }
 #endif
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
 
     instance->GetDPR(dpr);
     // std::cout << "DPR: " << dpr << std::endl;
@@ -278,7 +279,7 @@ int main( int argc, char ** argv)
     int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
     if (ret == -1)
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      // std::cout << "empty queue\n";
       continue;
     }
     
@@ -286,8 +287,6 @@ int main( int argc, char ** argv)
     // {
     //     std::cout << "intensity : " << intensity.at(i) << ", (" << coord_x.at(i) << ", " << coord_y.at(i) << ", " << coord_z.at(i) << ")" << std::endl;
     // }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
   }
   //========================================================================
   

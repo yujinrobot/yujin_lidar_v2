@@ -113,8 +113,18 @@ protected:
   void threadedFunction2 ();
 
 public:
-  /******************************* Output Data Interface  *******************************/
-  /// *** USE EITHER ONE OF THESE FUNCTIONS!
+  /***************************** 1. Main User Interface for LiDAR *****************************/
+  int ConnectTOYRL3V2();
+  void DisconnectTOYRL3V2();
+  void UserChangeMode(int mode);
+  void UserChangeIP(std::string new_ip);
+  void StartGettingDataStream();
+  void StopGettingDataStreamAndSet();
+
+  /****************************** 2. User Output Data Interface ******************************/
+  void GetDPR (float &dpr);
+  
+  /// *** USE EITHER ONE OF BELOW 3 FUNCTIONS!
   int GetWholeOutput (double &_SystemTime,
                       std::vector<float> &_RangeArray, 
                       std::vector<float> &_HorizontalAngleArray,
@@ -135,9 +145,9 @@ public:
                                         std::vector <float>& _HorizontalAngleArray,
                                         std::vector <float>& _VerticalAngleArray);
 
-  /******************************* Parameter Interface for UI *******************************/
-  void SetIPAddrParam (const std::string &ipAddr); //related to fw param
-  void SetPortNumParam (const unsigned short int portNum); //related to fw param
+  /******************************* 3. User Parameter Interface *******************************/
+  void SetIPAddrParam (const std::string &ipAddr);
+  void SetPortNumParam (const unsigned short int portNum);
   void SetMinZParam (const float z_min);
   void SetMaxZParam (const float z_max);
   void SetMinYParam (const float y_min);
@@ -148,10 +158,6 @@ public:
   void SetMaxRangeParam (const float range_max);
   void SetExtrinsicTransformMatParam (const float x, const float y, const float z,
                                       const float rx, const float ry, const float rz);
-  void SetHoriAngleOffsetParam (const float hori_angle_offset);
-  void SetVertiAngleOffsetParam (const float verti_angel_offset);
-  void SetOutputModeParam (const int output_mode); //related to fw param
-  void SetVerticalModeParam (const float vertical_mode);
   void SetMaxVertiAngleParam (const float verti_angle_max);
   void SetMinVertiAngleParam (const float verti_angle_min);
   void SetMaxHoriAngleParam (const float hori_angle_max);
@@ -169,21 +175,27 @@ public:
   float GetMaxRangeParam ();
   void GetExtrinsicTransformParam (float &x, float &y, float &z,
                                   float &rx, float &ry, float &rz);
-  float GetHoriAngleOffsetParam ();
-  float GetVertiAngleOffsetParam ();
-  int GetOutputModeParam ();
-  int GetVerticalModeParam ();
   float GetMaxVertiAngleParam ();
   float GetMinVertiAngleParam ();
   float GetMaxHoriAngleParam ();
   float GetMinHoriAngleParam ();
   float GetNoiseFilterLevelParam ();
+  
+  /************************************** DO NOT USE FUNCTIONS BELOW **************************************/
+  void SetHoriAngleOffsetParam (const float hori_angle_offset);
+  void SetVertiAngleOffsetParam (const float verti_angel_offset);
+  void SetOutputModeParam (const int output_mode); //related to fw param
+  void SetVerticalModeParam (const float vertical_mode);
+  float GetHoriAngleOffsetParam ();
+  float GetVertiAngleOffsetParam ();
+  int GetOutputModeParam ();
+  int GetVerticalModeParam ();
+
+  void StartStreaming ();
 
   void FWCMD (uint8_t code, int32_t data);
-  void StartStreaming ();
-  void FWMainReboot ();
   void FWGetYRLInitialSettingParameters ();
-  
+
   void FWGetYRLSiPMVoltage ();
   void FWGetYRLSiPMGain ();
   void FWGetYRLLDVoltage ();
@@ -254,7 +266,6 @@ public:
                       float &t_mcu, float &v_target_pd, float &rpm,
                       float &vertical_speed, float &sample_rate);
   void GetErrorCode (unsigned int &origin_info);
-  void GetDPR (float &dpr);
   int GetUDPErrorCase ();
   
   bool getuseRawDataGraph_UI ();

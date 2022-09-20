@@ -52,25 +52,26 @@ int main( int argc, char ** argv)
   // THIS FUNCTION SHOULD BE ONLY ONCE CALLED.
   LOGPRINT(main, YRL_LOG_USER, ("START DRIVER\n"));
   LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO LIDAR....\n"));
-  int ret = instance->Start();
-  if (ret < 0)
+  int ret = instance->ConnectTOYRL3V2();
+  if (ret == -1)
   {
     std::string IpAddress = instance->GetIPAddrParam();
     int PortNumber = instance->GetPortNumParam ();
     LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
     LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
     delete instance;
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return -1;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  instance->FWCMD(1, 14);
   LOGPRINT(main, YRL_LOG_USER, ("CONNECTED\n"));
+  instance->StartThreads();
   //========================================================================
 
   //== 4. START GETTING SENSOR DATA ========================================
   LOGPRINT(main, YRL_LOG_USER, ("START GETTING SCANNED DATA\n"));
-  instance->FWCMD(1, 13);
-  instance->StartStreaming();
+  instance->StartGettingDataStream();
   
   double SystemTime;
   std::vector <float> IntensityArray;
@@ -84,14 +85,14 @@ int main( int argc, char ** argv)
   sw.Start();
   while (sw.GetTimeElapsedInSec() < 10)
   {
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
     instance->GetDPR(dpr);
     int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
     if (ret == -1)
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      // std::cout << "empty queue\n";
       continue;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
   }
   //========================================================================
 
@@ -108,38 +109,38 @@ int main( int argc, char ** argv)
   // RECONNECT
   LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO LIDAR....\n"));
   instance->SetIPAddrParam(ip);
-  int result = instance->StartTCP();
-  if (result == -1)
+  ret = instance->ConnectTOYRL3V2();
+  if (ret == -1)
   {
     std::string IpAddress = instance->GetIPAddrParam();
     int PortNumber = instance->GetPortNumParam ();
     LOGPRINT(main, YRL_LOG_USER, ("CANNOT START COMMUNICATION WITH LIDAR.\n"));
     LOGPRINT(main, YRL_LOG_USER, ("CONNECT TO [IP:%s PORT:%d] FAILED. CHECK YOUR NETWORK CONNECTION.\n", IpAddress.c_str(), PortNumber));
     delete instance;
+#ifdef _WIN32
+    WSACleanup();
+#endif
     return -1;
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-  instance->FWCMD(1,14);
   LOGPRINT(main, YRL_LOG_USER, ("CONNECTED\n"));
   //========================================================================
 
   //== 6. START GETTING SENSOR DATA ========================================
   LOGPRINT(main, YRL_LOG_USER, ("START GETTING SCANNED DATA\n"));
-  instance->FWCMD(1, 13);
-  instance->StartStreaming();
+  instance->StartGettingDataStream();
 
   LOGPRINT(main, YRL_LOG_USER, ("DO SOMETHING....\n"));
   sw.Start();
   while (sw.GetTimeElapsedInSec() < 10)
   {
+    std::this_thread::sleep_for(std::chrono::milliseconds(40));
     instance->GetDPR(dpr);
     int ret = instance->GetCartesianOutputsWithIntensity (SystemTime, IntensityArray, XCoordArray, YCoordArray, ZCoordArray);
     if (ret == -1)
     {
-      std::this_thread::sleep_for(std::chrono::milliseconds(40));
+      // std::cout << "empty queue\n";
       continue;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(40));
   }
   //========================================================================
 

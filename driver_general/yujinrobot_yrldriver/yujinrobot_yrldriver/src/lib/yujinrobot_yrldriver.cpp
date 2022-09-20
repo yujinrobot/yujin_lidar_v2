@@ -143,6 +143,75 @@ void YujinRobotYrlDriver::createNetworkInterface()
   mNI = std::make_shared< NetworkInterface >();
 }
 
+int YujinRobotYrlDriver::ConnectTOYRL3V2()
+{
+  int result = StartTCP();
+  if (result == -1)
+  {
+    LOGPRINT(YujinRobotYrlDriver, YRL_LOG_ERROR, ("FAILED TO START TCP COMM.\n"));
+    return -1;
+  }
+
+#ifdef _WIN32
+  timeBeginPeriod(1);
+  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+  timeEndPeriod(1);
+#else
+  std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+#endif
+
+  FWCMD(1, 14);
+  return 1;
+}
+
+void YujinRobotYrlDriver::DisconnectTOYRL3V2()
+{
+  StopTCP();
+
+  #ifdef _WIN32
+  timeBeginPeriod(1);
+  std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+  timeEndPeriod(1);
+#else
+  std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+#endif
+}
+
+void YujinRobotYrlDriver::UserChangeMode (int mode)
+{
+  FWSetYRLVerticalMode(mode);
+  FWCMD(1, 9);
+  FWCMD(1, 14);
+  FWGetYRLVerticalMode();
+  FWGetYRLVerticalSpeed();
+  FWGetYRLVerticalAngleLower();
+  FWGetYRLVerticalAngleUpper();
+}
+
+void YujinRobotYrlDriver::UserChangeIP(std::string new_ip)
+{
+  std::stringstream s(new_ip);
+  int a,b,c,d;
+  int ip_a, ip_b, ip_c, ip_d;
+  char ch;
+  s >> a >> ch >> b >> ch >> c >> ch >> d;
+  FWSetYRLIPAddress(a, b, c, d);
+  FWCMD(1, 12);
+  FWGetYRLIPAddress(ip_a, ip_b, ip_c, ip_d);
+}
+
+void YujinRobotYrlDriver::StartGettingDataStream()
+{
+  FWCMD(1, 13);
+  mNI->doCommunicationMode(RECV_DATA_MODE, 0, 0, 0);
+}
+
+void YujinRobotYrlDriver::StopGettingDataStreamAndSet ()
+{
+  FWCMD(1, 6);
+  FWCMD(1, 14);
+}
+
 int YujinRobotYrlDriver::Start()
 {
   //==================================================================================================
@@ -1051,12 +1120,6 @@ float YujinRobotYrlDriver::GetMinHoriAngleParam ()
 float YujinRobotYrlDriver::GetNoiseFilterLevelParam ()
 {
   return mParams->mNoiseFilterLevelParam;
-}
-
-void YujinRobotYrlDriver::FWMainReboot ()
-{
-  FWCMD(1, 6);
-  FWCMD(1, 14);
 }
 
 void YujinRobotYrlDriver::FWGetYRLInitialSettingParameters ()
