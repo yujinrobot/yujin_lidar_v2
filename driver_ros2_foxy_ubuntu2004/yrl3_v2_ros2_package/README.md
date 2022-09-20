@@ -104,7 +104,6 @@ $ ros2 param get /yrl3_v2_ros2_node lidar_ip
 $ ros2 param set /< node_name > < parameter_name > < parameter_value >
 
 # Example
-$ ros2 param set /yrl3_v2_ros2_node lidar_ip 192.168.1.250
 $ ros2 param set /yrl3_v2_ros2_node scan_mode 1
 $ ros2 param set /yrl3_v2_ros2_node extrinsic_transform "[0.0, 0.0, 0.07, 0.0, 0.0, 0.0]"
 ```
