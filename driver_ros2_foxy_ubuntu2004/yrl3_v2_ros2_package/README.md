@@ -54,6 +54,8 @@ Copy 'yrl3_v2_ros2_package' in 'yujin_lidar_v2/driver_ros2_foxy_ubuntu2004' to ~
 ```
 ### Build the YRL3V2 ROS2 package
 ``` 
+***copy 'lib_yujinrobot_yrldriver', you created in 'YRL3V2 Driver Package-Build YRL3V2 Driver Package' above, to '~/colcon_ws/src/yrl3_v2_ros2_package'	
+***every time you made changes in driver, you should apply changed driver library to ros package.	
 Open a new terminal and build the package
 
 $ cd ~/colcon_ws
